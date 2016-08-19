@@ -89,6 +89,7 @@ public class MethodWeigher extends CompletionWeigher {
 		if (psiClass.getQualifiedName() != null) {
 			className = psiClass.getQualifiedName();
 		}
+		className.
 		return className + ":" + method.getName();
 	}
 }
