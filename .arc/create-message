@@ -1,9 +1,0 @@
-version 0 of the plugin
-
-Summary: Rank intellij method autocomplete using info provided by a local server (which talks to ai.codes async)
-
-Test Plan: none for now
-
-Reviewers: smf,shiyuangu
-
-Subscribers:
