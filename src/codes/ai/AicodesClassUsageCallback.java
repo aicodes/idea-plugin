@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by xuy on 8/12/16.
+ * This class is not used for now.
  */
 public class AicodesClassUsageCallback implements FutureCallback<HttpResponse> {
 	private final Gson gson = new Gson();
@@ -26,8 +27,6 @@ public class AicodesClassUsageCallback implements FutureCallback<HttpResponse> {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ClassMethodProbability probability = gson.fromJson(json, ClassMethodProbability.class);
-
 	}
 
 	@Override
