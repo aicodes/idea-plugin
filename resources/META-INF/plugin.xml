@@ -14,19 +14,20 @@
   ~ limitations under the License.
   -->
 <idea-plugin version="2">
-  <id>codes.ai.java.intellij.plugins.method-weigher</id>
-  <name>Method Usage Weighter</name>
-  <version>1.0</version>
+  <id>codes.ai.java.intellij.plugins.automethod</id>
+  <name>Ai.Codes Code Auto-completion</name>
+  <version>0.1</version>
   <vendor email="support@ai.codes" url="http://www.ai.codes">ai.codes</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      A plugin that infers your intention while coding and provides
+      better code auto-completion beyond basics.
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      v0.1 New ICE API <br/>
+      v0.0.2 Port and intention <br/>
+      v0.0.1 Talking to local server <br/>
     ]]>
   </change-notes>
 

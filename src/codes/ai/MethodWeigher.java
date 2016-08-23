@@ -88,7 +88,6 @@ public class MethodWeigher extends CompletionWeigher {
 			project = location.getProject();
 			PsiMethod psiMethod = (PsiMethod) element.getPsiElement();
 			String className = getClassName(psiMethod);
-
 			// HACK Ignore java.lang.Object methods in sorting, for now.
 			if (className.equals(JAVA_OBJECT_CLASS)) {
 				return DEFAULT_WEIGHT;
