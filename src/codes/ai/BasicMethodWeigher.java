@@ -1,17 +1,5 @@
 /*
- * Copyright 2000-2016 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright ai.codes
  */
 package codes.ai;
 
@@ -28,7 +16,6 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import org.apache.http.HttpEntity;
@@ -45,14 +32,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MethodWeigher extends CompletionWeigher {
-	private static final Logger log = Logger.getInstance(MethodWeigher.class);
-	private static final String JAVA_OBJECT_CLASS = "java.lang.Object";
+public class BasicMethodWeigher extends CompletionWeigher {
+	private static final Logger log = Logger.getInstance(BasicMethodWeigher.class);
 	private static final String CACHE_TTL_KEY = ".expiresIn";
 	private static final double DEFAULT_WEIGHT = 0.0;
 	private static final String EMPTY = "";
 	private static final String NO_SUCH_CLASS = "";
-	private static final String API_ENDPOINT = "http://localhost:26337";     // 26337=codes
+	private static final String API_ENDPOINT = "http://localhost:26337";  // 26337 = CODES
 
 	private static final NotificationGroup NOTIFICATION_GROUP =
 			new NotificationGroup("Ai.codes Notification Group",
@@ -74,9 +60,8 @@ public class MethodWeigher extends CompletionWeigher {
 	private final OfflineGateway gateway;
 	private CloseableHttpClient httpClient;
 	private Gson gson;
-	private Project project;
 
-	public MethodWeigher() {
+	public BasicMethodWeigher() {
 		httpClient = HttpClients.createDefault();
 		gson = new Gson();
 		gateway = new OfflineGateway();
@@ -85,24 +70,25 @@ public class MethodWeigher extends CompletionWeigher {
 	@Override
 	public Comparable weigh(@NotNull LookupElement element, @NotNull CompletionLocation location) {
 		if (element.getPsiElement() instanceof PsiMethod) {     // only handle method sorting for now.
-			project = location.getProject();
 			PsiMethod psiMethod = (PsiMethod) element.getPsiElement();
 			String className = getClassName(psiMethod);
-			// HACK Ignore java.lang.Object methods in sorting, for now.
-			if (className.equals(JAVA_OBJECT_CLASS)) {
-				return DEFAULT_WEIGHT;
-			}
 
 			if (gateway.hasKey(className)) {
 				return DEFAULT_WEIGHT;
 			}
 			log.info("API query string is " + className);
-			String json = getResponseOrEmpty(className, getContextId(location));
-			if (json.isEmpty()) return DEFAULT_WEIGHT;
+
+			Context context = Context.of(location);
+			String json = getResponseOrEmpty(className, context);
+			if (json.isEmpty()) {
+				return DEFAULT_WEIGHT;
+			}
 			Map<String, Double> usage = new HashMap<>();
 			try {
 				usage = gson.fromJson(json, usage.getClass());
-				if (usage == null) return DEFAULT_WEIGHT;
+				if (usage == null) {
+					return DEFAULT_WEIGHT;
+				}
 			} catch (JsonSyntaxException e) {
 				e.printStackTrace();
 				return DEFAULT_WEIGHT;
@@ -117,21 +103,9 @@ public class MethodWeigher extends CompletionWeigher {
 		return DEFAULT_WEIGHT;
 	}
 
-	/**
-	 * User may issue many requests to ICE API requesting various different extensions.
-	 * This ensures that different requests are sharing the same context. This is mostly
-	 * for the local dashboard to group multiple requests into a unified view.
-	 *
-	 * @param location
-	 * @return
-	 */
-	private int getContextId(@NotNull CompletionLocation location) {
-		return location.hashCode();
-	}
-
 	@NotNull
-	private String getResponseOrEmpty(String className, int contextId) {
-		String url = Joiner.on('/').join(API_ENDPOINT, contextId, className);
+	private String getResponseOrEmpty(String className, Context context) {
+		String url = Joiner.on('/').join(API_ENDPOINT, context.getId(), className);
 		HttpGet get = new HttpGet(url);
 		get.setConfig(RequestConfig.custom().setConnectTimeout(100).build());
 		try {
@@ -153,7 +127,7 @@ public class MethodWeigher extends CompletionWeigher {
 			gateway.setOffline(true);   // avoid repeated requests when cannot make HTTP connect.
 			Notification notification = NOTIFICATION_GROUP.createNotification(
 					"AI.codes Plugin Running in offline mode.", NotificationType.ERROR);
-			Notifications.Bus.notify(notification, project);
+			Notifications.Bus.notify(notification, context.getProject());
 			return EMPTY;
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
@@ -163,37 +137,29 @@ public class MethodWeigher extends CompletionWeigher {
 		return EMPTY;
 	}
 
-	@VisibleForTesting
-	/** JVM uses $ between class and inner class, while IntelliJ PsiClass gives "." in between.
+
+	/**
+	 * JVM uses $ between class and inner class, while IntelliJ PsiClass gives "." in between.
 	 * This method converts the PsiClass class name to the JVM standard.
+	 *
+	 * @param psiClass the psi element that represents a class.
+	 * @return
 	 */
-	public String getJvmName(@NotNull PsiClass psiClass) {
+	@VisibleForTesting
+	private String toJvmName(@NotNull PsiClass psiClass) {
 		if (psiClass.getContainingClass() == null) {
 			return psiClass.getQualifiedName();
-		} else {
-			return getJvmName(psiClass.getContainingClass()) + "$" + psiClass.getName();
+		}
+		else {
+			return toJvmName(psiClass.getContainingClass()) + "$" + psiClass.getName();
 		}
 	}
 
-	public String getClassName(@NotNull PsiMethod method) {
+	private String getClassName(@NotNull PsiMethod method) {
 		PsiClass psiClass = method.getContainingClass();
 		if (psiClass == null || psiClass.getQualifiedName() == null) {
 			return NO_SUCH_CLASS;
 		}
-		return getJvmName(psiClass);
-	}
-
-	// TODO(exu): PsiMethod some times is invoked on base class.
-	//              this will bias the probability because base class has different
-	//              method distribution. The weigher itself does not know if it is from the same call.
-	// For instance lower the baseline for java.lang.Object.
-	// OR figure out if I can get the right PsiClass here.
-	private String getCononicalName(@NotNull PsiMethod method) {
-		PsiClass psiClass = method.getContainingClass();
-		String className = "java.lang.unknownClass";
-		if (psiClass.getQualifiedName() != null) {
-			className = psiClass.getQualifiedName();
-		}
-		return className + ":" + method.getName();
+		return toJvmName(psiClass);
 	}
 }
