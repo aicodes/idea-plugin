@@ -41,7 +41,7 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <weigher key="completion" implementationClass="codes.ai.MethodWeigher"
+    <weigher key="completion" implementationClass="codes.ai.BasicMethodWeigher"
              id="codes.ai.weigher" order="first"/>
   </extensions>
 
