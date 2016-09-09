@@ -9,44 +9,56 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Code complete, even though calculated per method, is always invoked on a type/module etc.
- * CompletitionGroup abstracts the group of candidates.
+ * CompletionGroup represents the grouped view of auto-completion. It is also used for bundling
+ * requests into one.
+ *
+ * <p>This class is not thread-safe, it effectively act as ephemeral singleton.
  */
-class CompletitionGroup {
+class CompletionGroup {
+  private static CompletionGroup CURRENT_GROUP;
 
   private static final Joiner CONTEXT_JOIN = Joiner.on(':');
   private static final Joiner NAME_JOIN = Joiner.on('.');
 
-  private Context context;
+  private Context context; // Context
+  private String clazz; // Essentially Group Name
+  private List<String> methods; // Essentially elements in the group.
+  private MethodWeighCache cache;
 
-  private String clazz;
-  private List<String> methods;
-
-  private CompletitionGroup(String clazz, List<String> methods, Context context) {
+  private CompletionGroup(Context context, String clazz, List<String> methods) {
+    this.context = context;
     this.clazz = clazz;
     this.methods = methods;
-    this.context = context;
+    this.cache = new MethodWeighCache();
   }
 
-  @Nullable
-  static CompletitionGroup from(@NotNull PsiMethod method) {
-    return from(method, null);
-  }
-
-  @Nullable
-  static CompletitionGroup from(@NotNull PsiMethod method, @Nullable Context context) {
+  static CompletionGroup from(@NotNull PsiMethod method, @NotNull Context context) {
     PsiClass psiClass = method.getContainingClass();
-    if (psiClass != null) {
-      PsiMethod[] methods = psiClass.getMethods();
-      List<String> methodNames = new ArrayList<>(methods.length);
-      for (PsiMethod method1 : methods) {
-        methodNames.add(method1.getName());
-      }
-      return new CompletitionGroup(toJvmString(psiClass), methodNames, context);
+    if (psiClass == null) {
+      // IntelliJ seems to construct some strange PsiMethods on the fly.
+      // When it does, it does not have a corresponding PsiClass.
+      return null;
     }
-    return null;
+
+    if (CURRENT_GROUP != null
+        && context.equals(CURRENT_GROUP.context)
+        && Utils.getJvmName(psiClass).equals(CURRENT_GROUP.clazz)) {
+      return CURRENT_GROUP;
+    }
+    PsiMethod[] methods = psiClass.getMethods();
+    List<String> methodNames = new ArrayList<>(methods.length);
+    for (PsiMethod method1 : methods) {
+      methodNames.add(method1.getName());
+    }
+    CURRENT_GROUP = new CompletionGroup(context, Utils.getJvmName(psiClass), methodNames);
+    return CURRENT_GROUP;
+  }
+
+  @Override
+  public String toString() {
+    return context.getContextMethod() + ":" + clazz;
   }
 
   public String getClazz() {
@@ -60,5 +72,13 @@ class CompletitionGroup {
    */
   public Context getContext() {
     return context;
+  }
+
+  public List<String> getMethods() {
+    return methods;
+  }
+
+  public MethodWeighCache getCache() {
+    return cache;
   }
 }

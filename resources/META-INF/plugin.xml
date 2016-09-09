@@ -16,7 +16,7 @@
 <idea-plugin version="2">
   <id>codes.ai.java.intellij.plugins.automethod</id>
   <name>Ai.Codes Code Auto-completion</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <vendor email="support@ai.codes" url="http://www.ai.codes">ai.codes</vendor>
 
   <description><![CDATA[
@@ -45,8 +45,17 @@
              id="codes.ai.weigher" order="first"/>
   </extensions>
 
+  <!-- This will plug in my thing as an editor action -->
   <actions>
-    <!-- Add your actions here -->
+    <action class="codes.ai.intention.EditorIntention" id="TestEditorIntention" >
+      <add-to-group group-id="EditorActions" anchor="last" />
+    </action>
   </actions>
+
+  <application-components>
+    <component>
+      <implementation-class>codes.ai.intention.IntentionComponent</implementation-class>
+    </component>
+  </application-components>
 
 </idea-plugin>

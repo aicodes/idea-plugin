@@ -7,35 +7,27 @@ import org.apache.http.concurrent.FutureCallback;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by xuy on 8/12/16.
- * This class is not used for now.
- */
+/** Created by xuy on 8/12/16. This class is not used for now. */
 public class AicodesClassUsageCallback implements FutureCallback<HttpResponse> {
-	private final Gson gson = new Gson();
+  private final Gson gson = new Gson();
 
-	public AicodesClassUsageCallback(ConcurrentHashMap<String, Integer> cache) {
-	}
+  public AicodesClassUsageCallback(ConcurrentHashMap<String, Integer> cache) {}
 
-	@Override
-	public void completed(HttpResponse httpResponse) {
-		String json = "";
-		try {
-			java.util.Scanner s = new java.util.Scanner(
-					httpResponse.getEntity().getContent()).useDelimiter("\\A");
-			json = s.hasNext() ? s.next() : "";
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  @Override
+  public void completed(HttpResponse httpResponse) {
+    String json = "";
+    try {
+      java.util.Scanner s =
+          new java.util.Scanner(httpResponse.getEntity().getContent()).useDelimiter("\\A");
+      json = s.hasNext() ? s.next() : "";
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	@Override
-	public void failed(Exception e) {
+  @Override
+  public void failed(Exception e) {}
 
-	}
-
-	@Override
-	public void cancelled() {
-
-	}
+  @Override
+  public void cancelled() {}
 }

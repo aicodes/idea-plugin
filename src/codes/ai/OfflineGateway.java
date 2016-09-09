@@ -4,37 +4,36 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * OfflineGateway manages when we can issue an actual HTTP request.
- * Always check with it before issuing HTTP requests in the plugin.
+ * OfflineGateway manages when we can issue an actual HTTP request. Always check with it before
+ * issuing HTTP requests in the plugin.
  *
- * Created by xuy on 8/21/16.
+ * <p>Keys stay for 1s here, to temporarily prevent issuing requests to local servers over and over
+ * while waiting for results.
+ *
+ * <p>In future we will query things async. Created by xuy on 8/21/16.
  */
 public class OfflineGateway {
-	private boolean offline;
-	private Map<String, Long> keyTTL = new ConcurrentHashMap<>();
+  private boolean offline;
+  private static final long TTL_MS = 1000L;
+  private Map<String, Long> keyTTL = new ConcurrentHashMap<>();
 
-	// bette name would be "should stay offline"
-	boolean hasKey(String key) {
-		if (offline) return true;
-		if (keyTTL.containsKey(key)) {
-			if (System.currentTimeMillis() < keyTTL.get(key)) {
-				return true;
-			} else {    // Invalidate the cache because 1s has expired.
-				keyTTL.remove(key);
-			}
-		}
-		return false;
-	}
+  boolean shouldIssueRequest(String requestId) {
+    if (offline) return false;
+    if (keyTTL.containsKey(requestId)) {
+      if (System.currentTimeMillis() < keyTTL.get(requestId)) {
+        return false;
+      } else { // Invalidate the cache because 1s has expired.
+        keyTTL.remove(requestId);
+      }
+    }
+    keyTTL.put(requestId, TTL_MS);
+    return true;
+  }
 
-	void putKey(String key, long ttl) {
-		if (offline) return; // no need to put anything in offline mode.
-		keyTTL.put(key, ttl);
-	}
-
-	void setOffline(boolean isOffline) {
-		this.offline = isOffline;
-		if (this.offline) {
-			keyTTL.clear();
-		}
-	}
+  void setOffline(boolean isOffline) {
+    this.offline = isOffline;
+    if (this.offline) {
+      keyTTL.clear();
+    }
+  }
 }
