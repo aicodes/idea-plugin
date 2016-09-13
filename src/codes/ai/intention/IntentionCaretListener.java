@@ -17,6 +17,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collection;
 
 /** @author xuy. Copyright (c) Ai.codes */
@@ -41,7 +43,11 @@ public class IntentionCaretListener implements CaretListener {
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
           for (PsiComment comment : comments) {
             if (comment.getText().startsWith("///")) {
-              sb.append("+").append(comment.getText().substring(3));
+              try {
+                sb.append(URLEncoder.encode("&" + comment.getText().substring(3).trim(), "UTF-8"));
+              } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+              }
             }
           }
           String message = sb.toString();
