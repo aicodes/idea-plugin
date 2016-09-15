@@ -1,5 +1,6 @@
-package codes.ai;
+package codes.ai.localapi;
 
+import codes.ai.Context;
 import com.google.common.base.Joiner;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;
@@ -13,15 +14,15 @@ class MethodWeighCache {
   private ConcurrentHashMap<String, Double> cache = new ConcurrentHashMap<>();
   private static final Joiner joiner = Joiner.on('.');
 
-  public boolean hasKey(String key) {
+  boolean hasKey(String key) {
     return cache.containsKey(key);
   }
 
-  public double get(String key) {
+  double get(String key) {
     return cache.get(key);
   }
 
-  public void put(RequestType type, CompletionGroup group, Map<String, Double> weights) {
+  void put(ApiRequestType type, CompletionGroup group, Map<String, Double> weights) {
     // Use completion group as source of truth, iterate through it.
     // If we cannot find entries in response, pad it with a default value.
     for (String method : group.getMethods()) {
@@ -37,7 +38,7 @@ class MethodWeighCache {
     }
   }
 
-  static String getCacheKey(RequestType type, PsiMethod method, @Nullable Context context) {
+  static String getCacheKey(ApiRequestType type, PsiMethod method, @Nullable Context context) {
     if (context == null) {
       return joiner.join(type.getName(), Utils.getJvmName(method));
     }

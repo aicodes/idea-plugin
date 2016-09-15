@@ -1,26 +1,22 @@
-package codes.ai;
+package codes.ai.localapi;
 
-import com.google.common.base.Joiner;
+import codes.ai.Context;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Code complete, even though calculated per method, is always invoked on a type/module etc.
- * CompletionGroup represents the grouped view of auto-completion. It is also used for bundling
- * requests into one.
+ * Code-completion is always invoked on a type or module. Hence, CompletionGroup represents the
+ * grouped view of auto-completion. Candidates are retrieved for a CompletionGroup. At a given time,
+ * there is only one active CompletionGroup (e.g. CURRENT_GROUP).
  *
  * <p>This class is not thread-safe, it effectively act as ephemeral singleton.
  */
 class CompletionGroup {
   private static CompletionGroup CURRENT_GROUP;
-
-  private static final Joiner CONTEXT_JOIN = Joiner.on(':');
-  private static final Joiner NAME_JOIN = Joiner.on('.');
 
   private Context context; // Context
   private String clazz; // Essentially Group Name
@@ -61,24 +57,20 @@ class CompletionGroup {
     return context.getContextMethod() + ":" + clazz;
   }
 
-  public String getClazz() {
+  String getClazz() {
     return clazz;
   }
 
-  /**
-   * @Override public String toString() { if (context == null) { return NAME_JOIN.join(clazz,
-   * method); } else { return CONTEXT_JOIN.join(context.getContextMethod(), NAME_JOIN.join(clazz,
-   * method)); } }
-   */
-  public Context getContext() {
+  Context getContext() {
     return context;
   }
 
-  public List<String> getMethods() {
+  List<String> getMethods() {
     return methods;
   }
 
-  public MethodWeighCache getCache() {
+  MethodWeighCache getCache() {
     return cache;
   }
+
 }

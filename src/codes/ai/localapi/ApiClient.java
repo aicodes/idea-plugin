@@ -1,5 +1,6 @@
-package codes.ai;
+package codes.ai.localapi;
 
+import codes.ai.Context;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -26,21 +27,22 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * This class is responsible for all communications between IntelliJ and local ai.codes server. It
- * is a singleton.
+ * ApiClient is responsible for HTTP communications between IntelliJ and local ai.codes server.
+ * It is a singleton.
  *
- * <p>It is called Async because local AI server will immediately return something if it does not
- * have results available (HTTP 202 Accepted).
+ * <p>For good user experience, local server returns results immediately. If results are not available
+ * at local server, local server returns HTTP 202 (Accepted) and triggers an aync API call to Ai.codes
+ * server.
  *
- * <p>Results of API requests may be cached for efficiency reasons.
+ * <p>Results of API requests is cached for efficiency reasons.
  */
-class AsyncApiClient {
-  private static final Logger log = Logger.getInstance(AsyncApiClient.class);
+public class ApiClient {
+  private static final Logger log = Logger.getInstance(ApiClient.class);
 
   private Gson gson;
-  private final OfflineGateway gateway;
+  private final ApiRequestGateway gateway;
 
-  private static AsyncApiClient INSTANCE = null;
+  private static ApiClient INSTANCE = null;
   private static final String API_ENDPOINT = "http://localhost:26337"; // 26337 = CODES
 
   private static final int REQUEST_TIMEOUT_MILLS = 200;
@@ -53,31 +55,29 @@ class AsyncApiClient {
       new NotificationGroup("Ai.codes Notification Group", NotificationDisplayType.BALLOON, true);
 
   // Singleton method
-  static AsyncApiClient getInstance() {
+  public static ApiClient getInstance() {
     if (INSTANCE == null) {
-      INSTANCE = new AsyncApiClient();
+      INSTANCE = new ApiClient();
     }
     return INSTANCE;
   }
 
-  private AsyncApiClient() {
+  private ApiClient() {
     gson = new Gson();
-    gateway = new OfflineGateway();
+    gateway = new ApiRequestGateway();
   }
 
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
-    String similarityKey = MethodWeighCache.getCacheKey(RequestType.SIMILARITY, method, context);
-
     CompletionGroup cg = CompletionGroup.from(method, context);
     /// Skip empty completion groups.
     if (cg == null) {
-      return RequestType.USAGE.getDefaultValue();
+      return ApiRequestType.USAGE.getDefaultValue();
     }
 
     int status;
     if (cg.getContext().getContextMethod()
         == null) { // independent of context, usually happens when we define fields.
-      String usageKey = MethodWeighCache.getCacheKey(RequestType.USAGE, method, context);
+      String usageKey = ApiRequestType.USAGE.encodeRequest(method, context);
       if (cg.getCache().hasKey(usageKey)) {
         return cg.getCache().get(usageKey);
       }
@@ -87,6 +87,7 @@ class AsyncApiClient {
         return cg.getCache().get(usageKey);
       }
     } else {
+      String similarityKey = ApiRequestType.SIMILARITY.encodeRequest(method, context);
       if (cg.getCache().hasKey(similarityKey)) {
         return cg.getCache().get(similarityKey);
       }
@@ -96,11 +97,11 @@ class AsyncApiClient {
         return cg.getCache().get(similarityKey);
       }
     }
-    return RequestType.USAGE.getDefaultValue();
+    return ApiRequestType.USAGE.getDefaultValue();
   }
 
   private int tryGetSimilarityFromAI(@NotNull CompletionGroup cg) {
-    if (!gateway.shouldIssueRequest(RequestType.SIMILARITY.toString() + cg.toString())) {
+    if (!gateway.shouldIssueRequest(ApiRequestType.SIMILARITY.toString() + cg.toString())) {
       return RADIO_SILENCE;
     }
 
@@ -119,7 +120,7 @@ class AsyncApiClient {
 
     int httpResult = pokeLocalAiServer(url, context, result); // poke server
     if (httpResult == 200) {
-      cg.getCache().put(RequestType.SIMILARITY, cg, result);
+      cg.getCache().put(ApiRequestType.SIMILARITY, cg, result);
     }
     return httpResult;
   }
@@ -131,14 +132,13 @@ class AsyncApiClient {
     Map<String, Double> result = new HashMap<>();
     int httpResult = pokeLocalAiServer(url, context, result); // poke server
     if (httpResult == 200 && !result.isEmpty()) {
-      group.getCache().put(RequestType.USAGE, group, result);
+      group.getCache().put(ApiRequestType.USAGE, group, result);
       return httpResult;
     }
     return 204; // don't have the result yet.
   }
 
   private int pokeLocalAiServer(String url, Context context, Map<String, Double> results) {
-    System.out.println("Going to request local server on " + url);
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet get = new HttpGet(url);
     get.setConfig(
@@ -152,7 +152,7 @@ class AsyncApiClient {
       response = httpClient.execute(get);
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode == HttpStatus.SC_OK) {
-        ResponseJson json = parseJson(response);
+        ApiResponse json = parseJson(response);
         results.putAll(json.getResponse());
         return json.getStatus();
       }
@@ -178,8 +178,8 @@ class AsyncApiClient {
     }
   }
 
-  private ResponseJson parseJson(CloseableHttpResponse response) {
-    ResponseJson json = new ResponseJson();
+  private ApiResponse parseJson(CloseableHttpResponse response) {
+    ApiResponse json = new ApiResponse();
     String jsonString = EMPTY_JSON;
 
     // Get JSON Object

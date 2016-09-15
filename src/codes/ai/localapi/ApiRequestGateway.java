@@ -1,18 +1,17 @@
-package codes.ai;
+package codes.ai.localapi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * OfflineGateway manages when we can issue an actual HTTP request. Always check with it before
- * issuing HTTP requests in the plugin.
+ * ApiRequestGateway is a performance optimization. It gates HTTP request issued to local server,
+ * such that ApiClient does not repetitively issue requests to local server that are known to fail.
  *
- * <p>Keys stay for 1s here, to temporarily prevent issuing requests to local servers over and over
- * while waiting for results.
- *
- * <p>In future we will query things async. Created by xuy on 8/21/16.
+ * The following two scenarios would return false when shouldIssueRequest is called:
+ *  1. When an identical request has just been issued within a second;
+ *  2. When we cannot talk to local server (offline = true).
  */
-public class OfflineGateway {
+class ApiRequestGateway {
   private boolean offline;
   private static final long TTL_MS = 1000L;
   private Map<String, Long> keyTTL = new ConcurrentHashMap<>();

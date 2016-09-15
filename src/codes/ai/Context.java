@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * dashboard. ICE id should be uniquely decided by the current cursor location and the file content.
  * Here to simplify we use the hashCode for the cursor location as the ICE id.
  */
-class Context {
+public class Context {
   private static Context CURRENT_CONTEXT; // a singleton object.
 
   private Project project;
@@ -36,18 +36,18 @@ class Context {
   }
 
   // Avoid constructing new context repetitively if they are originated from the same location.
-  static Context of(@NotNull CompletionLocation location) {
+  public static Context of(@NotNull CompletionLocation location) {
     if (CURRENT_CONTEXT == null || CURRENT_CONTEXT.getId() != location.hashCode()) {
       CURRENT_CONTEXT = new Context(location);
     }
     return CURRENT_CONTEXT;
   }
 
-  Project getProject() {
+  public Project getProject() {
     return project;
   }
 
-  int getId() {
+  public int getId() {
     return id;
   }
 

@@ -50,7 +50,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
 	@Override
 	public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-		System.out.println("WebSocket Client disconnected!");
+		System.out.println("WebSocket WsClient disconnected!");
 	}
 
 	@Override

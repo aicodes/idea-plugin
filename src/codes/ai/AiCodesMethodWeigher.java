@@ -3,24 +3,27 @@
  */
 package codes.ai;
 
+import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionLocation;
 import com.intellij.codeInsight.completion.CompletionWeigher;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
-public class BasicMethodWeigher extends CompletionWeigher {
-  //	private static final String CACHE_TTL_KEY = ".expiresIn";
+public class AiCodesMethodWeigher extends CompletionWeigher {
   private static final double DEFAULT_WEIGHT = 0.0;
+  // IntelliJ sometimes assign weights (0/1) to lookup elements. In this case our probability-based system
+  // would not dominate the ranking order. Scale the number by 10x to get proper rankings.
+  private static final double WEIGHT_MULTIPLIER = 10.0;
 
   @Override
   public Comparable weigh(@NotNull LookupElement element, @NotNull CompletionLocation location) {
     if (element.getPsiElement() instanceof PsiMethod) { // only handle method sorting for now.
       Context context = Context.of(location);
       PsiMethod psiMethod = (PsiMethod) element.getPsiElement();
-      double weight = AsyncApiClient.getInstance().getMethodWeight(psiMethod, context) * 10.0;
+      double weight = ApiClient.getInstance().getMethodWeight(psiMethod, context) * WEIGHT_MULTIPLIER;
       return weight;
     }
-    return DEFAULT_WEIGHT; // Do not weight anything else.
+    return DEFAULT_WEIGHT;
   }
 }

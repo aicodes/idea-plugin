@@ -1,4 +1,4 @@
-package codes.ai;
+package codes.ai.localapi;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.psi.PsiClass;
@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class Utils {
+class Utils {
   private static final String UNKNOWN_CLASS = "UnknownClass";
 
   /**

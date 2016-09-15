@@ -1,6 +1,6 @@
 package codes.ai.intention;
 
-import codes.ai.websocket.Client;
+import codes.ai.websocket.WsClient;
 import com.google.gson.Gson;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.event.CaretEvent;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
-  private Client wsClient = Client.getInstance();
+  private WsClient wsWsClient = WsClient.getInstance();
   private Gson gson = new Gson();
 
   @Override
@@ -53,7 +53,7 @@ public class IntentionCaretListener implements CaretListener {
                   .filter(comment -> comment.getText().startsWith("///"))
                   .map(comment -> comment.getText().substring(3).trim())
                   .collect(Collectors.toList()));
-          wsClient.sendMessage(gson.toJson(payload));
+          wsWsClient.sendMessage(gson.toJson(payload));
         }
       }
     }

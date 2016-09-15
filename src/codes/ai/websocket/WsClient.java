@@ -3,37 +3,28 @@ package codes.ai.websocket;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import io.netty.channel.nio.NioEventLoopGroup;
 
-import javax.xml.soap.Text;
-
 /** @author xuy. Copyright (c) Ai.codes */
 // See if this works, and see if we need to switch to a different client provided by IntelliJ.
-public class Client {
+public class WsClient {
   static final String URL = "ws://localhost:26337/";
-  static Client instance = null;
+  static WsClient instance = null;
 
   private WebSocketHandler handler;
   private Channel channel;
@@ -41,7 +32,7 @@ public class Client {
   private Bootstrap b;
   private URI uri;
 
-  private Client() {
+  private WsClient() {
     this.uri = URI.create(URL);
     this.group = new NioEventLoopGroup();
 
@@ -101,21 +92,21 @@ public class Client {
     this.group.shutdownGracefully();
   }
 
-  public static Client getInstance() {
+  public static WsClient getInstance() {
     if (instance == null) {
-      instance = new Client();
+      instance = new WsClient();
     }
     return instance;
   }
 
   public static void main(String[] args) throws Exception {
-    Client wsClient = Client.getInstance();
+    WsClient wsWsClient = WsClient.getInstance();
     int i = 0;
     while (i < 10) {
-      wsClient.sendMessage("Message #1 " + Integer.toString(i));
-      wsClient.sendMessage("Message #2 " + Integer.toString(i));
+      wsWsClient.sendMessage("Message #1 " + Integer.toString(i));
+      wsWsClient.sendMessage("Message #2 " + Integer.toString(i));
       i++;
     }
-    wsClient.shutdown();
+    wsWsClient.shutdown();
   }
 }
