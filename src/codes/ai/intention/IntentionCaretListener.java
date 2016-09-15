@@ -1,10 +1,7 @@
 package codes.ai.intention;
 
-<<<<<<< HEAD
 import codes.ai.websocket.Client;
 import com.google.gson.Gson;
-=======
->>>>>>> 170987abd2fb23fd56a5e09cfacb97fde64f5d01
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
@@ -26,7 +23,6 @@ import java.util.Collection;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
-<<<<<<< HEAD
   private Client wsClient = Client.getInstance();
   private Gson gson = new Gson();
 
@@ -37,13 +33,6 @@ public class IntentionCaretListener implements CaretListener {
     if (caretEvent.getOldPosition().line == caretEvent.getNewPosition().line) {
       return;
     }
-=======
-  @Override
-  public void caretPositionChanged(CaretEvent caretEvent) {
-    Project project = caretEvent.getEditor().getProject();
-    if (caretEvent.getOldPosition().line == caretEvent.getNewPosition().line)
-      return; // quick optimization.
->>>>>>> 170987abd2fb23fd56a5e09cfacb97fde64f5d01
     if (project != null) {
       PsiDocumentManager manager = PsiDocumentManager.getInstance(project);
       PsiFile file = manager.getPsiFile(caretEvent.getEditor().getDocument());
@@ -52,31 +41,17 @@ public class IntentionCaretListener implements CaretListener {
         PsiElement element = file.findElementAt(c.getOffset());
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
         if (method != null) {
-<<<<<<< HEAD
           IntentionPayload payload = new IntentionPayload();
           payload.methodName = method.getName();
-=======
-          StringBuilder sb = new StringBuilder();
-          sb.append(method.getName());
->>>>>>> 170987abd2fb23fd56a5e09cfacb97fde64f5d01
 
           Collection<PsiComment> comments =
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
           for (PsiComment comment : comments) {
             if (comment.getText().startsWith("///")) {
-<<<<<<< HEAD
               payload.intentions.add(comment.getText().substring(3).trim());
             }
           }
           wsClient.sendMessage(gson.toJson(payload));
-=======
-              sb.append("+").append(comment.getText().substring(3));
-            }
-          }
-          String message = sb.toString();
-          System.out.println("Send to local server " + message);
-          sendMessage(message);
->>>>>>> 170987abd2fb23fd56a5e09cfacb97fde64f5d01
         }
       }
     }

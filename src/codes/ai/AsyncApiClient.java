@@ -68,15 +68,9 @@ class AsyncApiClient {
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
     String similarityKey = MethodWeighCache.getCacheKey(RequestType.SIMILARITY, method, context);
 
-<<<<<<< HEAD
     CompletionGroup cg = CompletionGroup.from(method, context);
     /// Skip empty completion groups.
     if (cg == null) {
-=======
-    // TODO: refactor to have cg support these things.
-    CompletionGroup cg = CompletionGroup.from(method, context);
-    if (cg == null) { // no need if there is no containing class.
->>>>>>> 170987abd2fb23fd56a5e09cfacb97fde64f5d01
       return RequestType.USAGE.getDefaultValue();
     }
 
