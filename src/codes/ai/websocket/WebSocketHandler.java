@@ -2,6 +2,7 @@ package codes.ai.websocket;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 
 /// Not used for now, as it is for reading messages from server.
+	@ChannelHandler.Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 

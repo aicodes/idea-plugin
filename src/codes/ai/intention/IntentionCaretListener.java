@@ -1,5 +1,7 @@
 package codes.ai.intention;
 
+import codes.ai.websocket.Client;
+import com.google.gson.Gson;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
@@ -17,12 +19,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Collection;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
+  private Client wsClient = Client.getInstance();
+  private Gson gson = new Gson();
+
   @Override
   public void caretPositionChanged(CaretEvent caretEvent) {
     Project project = caretEvent.getEditor().getProject();
@@ -38,23 +41,17 @@ public class IntentionCaretListener implements CaretListener {
         PsiElement element = file.findElementAt(c.getOffset());
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
         if (method != null) {
-          StringBuilder sb = new StringBuilder();
-          sb.append(method.getName());
+          IntentionPayload payload = new IntentionPayload();
+          payload.methodName = method.getName();
 
           Collection<PsiComment> comments =
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
           for (PsiComment comment : comments) {
             if (comment.getText().startsWith("///")) {
-              try {
-                sb.append(URLEncoder.encode("&" + comment.getText().substring(3).trim(), "UTF-8"));
-              } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-              }
+              payload.intentions.add(comment.getText().substring(3).trim());
             }
           }
-          String message = sb.toString();
-          System.out.println("Send to local server " + message);
-          sendMessage(message);
+          wsClient.sendMessage(gson.toJson(payload));
         }
       }
     }

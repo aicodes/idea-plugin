@@ -37,11 +37,13 @@ public class Client {
 
   private WebSocketHandler handler;
   private Channel channel;
-	private NioEventLoopGroup group;
+  private NioEventLoopGroup group;
+  private Bootstrap b;
+  private URI uri;
 
   private Client() {
-    URI uri = URI.create(URL);
-	  this.group = new NioEventLoopGroup();
+    this.uri = URI.create(URL);
+    this.group = new NioEventLoopGroup();
 
     this.handler =
         new WebSocketHandler(
@@ -54,7 +56,7 @@ public class Client {
 
     /// Channel handshake.
     try {
-      Bootstrap b = new Bootstrap();
+      b = new Bootstrap();
       b.group(group)
           .channel(NioSocketChannel.class)
           .handler(
@@ -69,14 +71,25 @@ public class Client {
                       handler);
                 }
               });
-      this.channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
-	    // do we need to ping??
+      this.channel = b.connect(this.uri.getHost(), this.uri.getPort()).sync().channel();
+      this.channel.writeAndFlush(
+          new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[] {8, 1, 8, 1})));
       this.handler.handshakeFuture().sync();
+      System.out.println("hello");
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
       group.shutdownGracefully();
     }
+  }
+
+  private void connectChannel() {
+    try {
+      this.channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    this.channel.writeAndFlush(
+        new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[] {8, 1, 8, 1})));
   }
 
   public void sendMessage(String message) {
@@ -85,20 +98,24 @@ public class Client {
   }
 
   public void shutdown() {
-  	this.group.shutdownGracefully();
+    this.group.shutdownGracefully();
   }
 
   public static Client getInstance() {
-  	if (instance == null) {
-  		instance = new Client();
+    if (instance == null) {
+      instance = new Client();
     }
     return instance;
   }
 
-
   public static void main(String[] args) throws Exception {
-  	Client wsClient = Client.getInstance();
-	  wsClient.sendMessage("hello");
-	  wsClient.sendMessage("world ");
+    Client wsClient = Client.getInstance();
+    int i = 0;
+    while (i < 10) {
+      wsClient.sendMessage("Message #1 " + Integer.toString(i));
+      wsClient.sendMessage("Message #2 " + Integer.toString(i));
+      i++;
+    }
+    wsClient.shutdown();
   }
 }
