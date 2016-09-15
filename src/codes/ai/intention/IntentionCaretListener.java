@@ -20,6 +20,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
@@ -46,11 +47,12 @@ public class IntentionCaretListener implements CaretListener {
 
           Collection<PsiComment> comments =
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
-          for (PsiComment comment : comments) {
-            if (comment.getText().startsWith("///")) {
-              payload.intentions.add(comment.getText().substring(3).trim());
-            }
-          }
+          payload.intentions.addAll(
+              comments
+                  .stream()
+                  .filter(comment -> comment.getText().startsWith("///"))
+                  .map(comment -> comment.getText().substring(3).trim())
+                  .collect(Collectors.toList()));
           wsClient.sendMessage(gson.toJson(payload));
         }
       }
