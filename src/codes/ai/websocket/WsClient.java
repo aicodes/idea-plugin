@@ -66,7 +66,6 @@ public class WsClient {
       this.channel.writeAndFlush(
           new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[] {8, 1, 8, 1})));
       this.handler.handshakeFuture().sync();
-      System.out.println("hello");
     } catch (Exception e) {
       e.printStackTrace();
       group.shutdownGracefully();
