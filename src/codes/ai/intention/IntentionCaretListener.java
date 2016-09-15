@@ -5,12 +5,20 @@ import com.google.gson.Gson;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.event.CaretEvent;
 import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiParameterList;
+import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,6 +28,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
@@ -34,16 +43,65 @@ public class IntentionCaretListener implements CaretListener {
     if (caretEvent.getOldPosition().line == caretEvent.getNewPosition().line) {
       return;
     }
-    if (project != null) {
+    if (project != null && project.isInitialized()) {
       PsiDocumentManager manager = PsiDocumentManager.getInstance(project);
       PsiFile file = manager.getPsiFile(caretEvent.getEditor().getDocument());
       Caret c = caretEvent.getCaret();
       if (c != null && file != null) {
         PsiElement element = file.findElementAt(c.getOffset());
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
-        if (method != null) {
+        PsiClass clazz = PsiTreeUtil.getParentOfType(method, PsiClass.class);
+
+        if (method != null && clazz != null) {
           IntentionPayload payload = new IntentionPayload();
           payload.methodName = method.getName();
+
+          Collection<PsiField> fields =
+                  PsiTreeUtil.findChildrenOfType(clazz, PsiField.class);
+
+          try {
+            payload.fields.addAll(
+              fields.stream().map(
+                      PsiField::getTypeElement)
+                      .map(PsiTypeElement::getType)
+                      .filter(psiType -> psiType.toString() != null)
+                      .map(PsiType::getCanonicalText) // this requires IntelliJ index
+                      .collect(Collectors.toList()));
+          } catch (IndexNotReadyException e) {
+            payload.fields.clear();
+          }
+
+          Collection<PsiLocalVariable> localVariables =
+              PsiTreeUtil.findChildrenOfType(method, PsiLocalVariable.class);
+          try {
+            payload.localVariables.addAll(
+                localVariables
+                    .stream()
+                    .map(PsiLocalVariable::getTypeElement)
+                    .map(PsiTypeElement::getType)
+                    .filter(psiType -> psiType.toString() != null)
+                    .map(PsiType::getCanonicalText) // this requires IntelliJ index
+                    .collect(Collectors.toList()));
+          } catch (IndexNotReadyException e) {
+            payload.localVariables.clear();
+          }
+
+          PsiParameterList parameterList = method.getParameterList();
+          Collection<PsiParameter> parameters =
+              PsiTreeUtil.findChildrenOfType(parameterList, PsiParameter.class);
+          try {
+            payload.parameters.addAll(
+                parameters
+                    .stream()
+                    .filter(parameter -> parameter.getTypeElement() != null)
+                    .map(PsiParameter::getTypeElement)
+                    .map(PsiTypeElement::getType)
+                    .filter(psiType -> psiType.toString() != null)
+                    .map(PsiType::getCanonicalText) // this requires IntelliJ index
+                    .collect(Collectors.toList()));
+          } catch (IndexNotReadyException e) {
+            payload.parameters.clear();
+          }
 
           Collection<PsiComment> comments =
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
@@ -95,3 +153,4 @@ public class IntentionCaretListener implements CaretListener {
     }
   }
 }
+
