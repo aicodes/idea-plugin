@@ -36,7 +36,7 @@ public class Context {
   }
 
   // Avoid constructing new context repetitively if they are originated from the same location.
-  public static Context of(@NotNull CompletionLocation location) {
+  static Context of(@NotNull CompletionLocation location) {
     if (CURRENT_CONTEXT == null || CURRENT_CONTEXT.getId() != location.hashCode()) {
       CURRENT_CONTEXT = new Context(location);
     }
@@ -53,5 +53,9 @@ public class Context {
 
   public String getContextMethod() {
     return contextMethod;
+  }
+
+  public boolean hasContextMethod() {
+    return contextMethod != null;
   }
 }

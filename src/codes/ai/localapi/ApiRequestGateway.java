@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * ApiRequestGateway is a performance optimization. It gates HTTP request issued to local server,
  * such that ApiClient does not repetitively issue requests to local server that are known to fail.
  *
- * The following two scenarios would return false when shouldIssueRequest is called:
- *  1. When an identical request has just been issued within a second;
- *  2. When we cannot talk to local server (offline = true).
+ * <p>The following two scenarios would return false when shouldIssueRequest is called: 1. When an
+ * identical request has just been issued within a second; 2. When we cannot talk to local server
+ * (offline = true).
  */
 class ApiRequestGateway {
   private boolean offline;

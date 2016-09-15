@@ -1,12 +1,15 @@
 package codes.ai.localapi;
 
 import codes.ai.Context;
+import com.google.common.base.Joiner;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Code-completion is always invoked on a type or module. Hence, CompletionGroup represents the
@@ -21,13 +24,14 @@ class CompletionGroup {
   private Context context; // Context
   private String clazz; // Essentially Group Name
   private List<String> methods; // Essentially elements in the group.
-  private MethodWeighCache cache;
+  private ConcurrentHashMap<String, Double> cache = new ConcurrentHashMap<>();
+  private static final Joiner joiner = Joiner.on('.');
 
   private CompletionGroup(Context context, String clazz, List<String> methods) {
     this.context = context;
     this.clazz = clazz;
     this.methods = methods;
-    this.cache = new MethodWeighCache();
+    this.cache = new ConcurrentHashMap<>();
   }
 
   static CompletionGroup from(@NotNull PsiMethod method, @NotNull Context context) {
@@ -65,12 +69,25 @@ class CompletionGroup {
     return context;
   }
 
-  List<String> getMethods() {
-    return methods;
+  boolean hasWeight(String key) {
+    return this.cache.containsKey(key);
   }
 
-  MethodWeighCache getCache() {
-    return cache;
+  void putWeights(ApiRequestType type, Map<String, Double> weights) {
+    // Use completion group as source of truth, iterate through it.
+    // If we cannot find entries in response, pad it with a default value.
+    for (String method : methods) {
+      String cacheKey = joiner.join(type.getName(), context.getContextMethod(), clazz, method);
+
+      if (weights.containsKey(method)) {
+        cache.put(cacheKey, weights.get(method));
+      } else {
+        cache.put(cacheKey, type.getDefaultValue());
+      }
+    }
   }
 
+  double getWeight(String key) {
+    return this.cache.get(key);
+  }
 }

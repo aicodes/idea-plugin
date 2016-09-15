@@ -68,33 +68,33 @@ public class ApiClient {
   }
 
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
-    CompletionGroup cg = CompletionGroup.from(method, context);
+    CompletionGroup completionGroup = CompletionGroup.from(method, context);
     /// Skip empty completion groups.
-    if (cg == null) {
+    if (completionGroup == null) {
       return ApiRequestType.USAGE.getDefaultValue();
     }
 
     int status;
-    if (cg.getContext().getContextMethod()
-        == null) { // independent of context, usually happens when we define fields.
-      String usageKey = ApiRequestType.USAGE.encodeRequest(method, context);
-      if (cg.getCache().hasKey(usageKey)) {
-        return cg.getCache().get(usageKey);
+    if (completionGroup.getContext().hasContextMethod()) {
+      String similarityKey = ApiRequestType.SIMILARITY.encodeRequest(method, context);
+      if (completionGroup.hasWeight(similarityKey)) {
+        return completionGroup.getWeight(similarityKey);
       }
 
-      status = tryGetUsageFromAI(cg);
-      if (status == 200 && cg.getCache().hasKey(usageKey)) {
-        return cg.getCache().get(usageKey);
+      status = tryGetSimilarityFromAI(completionGroup);
+      if (status == 200 && completionGroup.hasWeight(similarityKey)) {
+        return completionGroup.getWeight(similarityKey);
       }
     } else {
-      String similarityKey = ApiRequestType.SIMILARITY.encodeRequest(method, context);
-      if (cg.getCache().hasKey(similarityKey)) {
-        return cg.getCache().get(similarityKey);
+      // independent of context, usually happens when we define fields.
+      String usageKey = ApiRequestType.USAGE.encodeRequest(method, context);
+      if (completionGroup.hasWeight(usageKey)) {
+        return completionGroup.getWeight(usageKey);
       }
 
-      status = tryGetSimilarityFromAI(cg);
-      if (status == 200 && cg.getCache().hasKey(similarityKey)) {
-        return cg.getCache().get(similarityKey);
+      status = tryGetUsageFromAI(completionGroup);
+      if (status == 200 && completionGroup.hasWeight(usageKey)) {
+        return completionGroup.getWeight(usageKey);
       }
     }
     return ApiRequestType.USAGE.getDefaultValue();
@@ -120,7 +120,7 @@ public class ApiClient {
 
     int httpResult = pokeLocalAiServer(url, context, result); // poke server
     if (httpResult == 200) {
-      cg.getCache().put(ApiRequestType.SIMILARITY, cg, result);
+      cg.putWeights(ApiRequestType.SIMILARITY, result);
     }
     return httpResult;
   }
@@ -132,7 +132,7 @@ public class ApiClient {
     Map<String, Double> result = new HashMap<>();
     int httpResult = pokeLocalAiServer(url, context, result); // poke server
     if (httpResult == 200 && !result.isEmpty()) {
-      group.getCache().put(ApiRequestType.USAGE, group, result);
+      group.putWeights(ApiRequestType.USAGE, result);
       return httpResult;
     }
     return 204; // don't have the result yet.
