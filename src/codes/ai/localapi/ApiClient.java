@@ -67,6 +67,15 @@ public class ApiClient {
     gateway = new ApiRequestGateway();
   }
 
+  public String getSnippet(@NotNull String intention) {
+    if (intention.equals("string to int")) {
+      return "int foo = Integer.parseInt(\"1234\");";
+    }
+    else {
+      return "snippet not implemented yet";
+    }
+  }
+
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
     CompletionGroup completionGroup = CompletionGroup.from(method, context);
     /// Skip empty completion groups.
@@ -106,7 +115,9 @@ public class ApiClient {
     }
 
     Context context = cg.getContext();
-
+    if (context.getContextMethod() == null) {
+      return 404; // empty method.
+    }
     // URL format: http://localhost:26337/similarity/<ice_id>/ClassName/context
     String url =
         Joiner.on('/')

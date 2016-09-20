@@ -29,7 +29,12 @@ enum ApiRequestType {
     if (context == null) {
       return joiner.join(getName(), Utils.getJvmName(method));
     }
-    return joiner.join(getName(), context.getContextMethod(), Utils.getJvmName(method));
+    if (context.getContextMethod() != null) {
+      return joiner.join(getName(), context.getContextMethod(), Utils.getJvmName(method));
+    }
+    else {
+      return joiner.join(getName(), "#", Utils.getJvmName(method));
+    }
   }
 
   public double getDefaultValue() {

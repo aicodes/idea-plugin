@@ -16,7 +16,7 @@
 <idea-plugin version="2">
   <id>codes.ai.java.intellij.plugins.automethod</id>
   <name>Ai.Codes Code Auto-completion</name>
-  <version>0.2</version>
+  <version>0.3</version>
   <vendor email="support@ai.codes" url="http://www.ai.codes">ai.codes</vendor>
 
   <description><![CDATA[
@@ -25,6 +25,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      v0.3 Intention-based auto-completion.
+      v0.2 Method context based auto-completion.
       v0.1 New ICE API <br/>
       v0.0.2 Port and intention <br/>
       v0.0.1 Talking to local server <br/>
@@ -43,6 +45,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <weigher key="completion" implementationClass="codes.ai.AiCodesMethodWeigher"
              id="codes.ai.weigher" order="first"/>
+    <completion.contributor language="JAVA" implementationClass="codes.ai.intention.SnippetCompletion"/>
   </extensions>
 
   <!-- This will plug in my thing as an editor action -->
@@ -51,6 +54,8 @@
       <add-to-group group-id="EditorActions" anchor="last" />
     </action>
   </actions>
+
+
 
   <application-components>
     <component>
