@@ -48,15 +48,6 @@
     <completion.contributor language="JAVA" implementationClass="codes.ai.intention.SnippetCompletion"/>
   </extensions>
 
-  <!-- This will plug in my thing as an editor action -->
-  <actions>
-    <action class="codes.ai.intention.EditorIntention" id="TestEditorIntention" >
-      <add-to-group group-id="EditorActions" anchor="last" />
-    </action>
-  </actions>
-
-
-
   <application-components>
     <component>
       <implementation-class>codes.ai.intention.IntentionComponent</implementation-class>

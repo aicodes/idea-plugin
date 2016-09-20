@@ -32,7 +32,7 @@ public class SnippetCompletion extends CompletionContributor {
 					public void addCompletions(@NotNull CompletionParameters parameters,
 					                           ProcessingContext context,
 					                           @NotNull CompletionResultSet resultSet) {
-						// Get the intention line.
+						// Get the intention line, which is a comment starting with three slashes.
 						PsiElement comment = PsiTreeUtil.skipSiblingsBackward(parameters.getOriginalPosition(), PsiWhiteSpace.class);
 						if (comment == null || !comment.getText().startsWith("///")) {
 							return;

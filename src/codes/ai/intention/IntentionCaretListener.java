@@ -28,12 +28,11 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
-  private WsClient wsWsClient = WsClient.getInstance();
+  private WsClient wsClient = WsClient.getInstance();
   private Gson gson = new Gson();
 
   @Override
@@ -111,7 +110,7 @@ public class IntentionCaretListener implements CaretListener {
                   .filter(comment -> comment.getText().startsWith("///"))
                   .map(comment -> comment.getText().substring(3).trim())
                   .collect(Collectors.toList()));
-          wsWsClient.sendMessage(gson.toJson(payload));
+          wsClient.sendMessage(gson.toJson(payload));
         }
       }
     }
@@ -119,17 +118,14 @@ public class IntentionCaretListener implements CaretListener {
 
   @Override
   public void caretAdded(CaretEvent caretEvent) {
-    System.out.println("Added");
   }
 
   @Override
   public void caretRemoved(CaretEvent caretEvent) {
-    // do nothing
-    System.out.println("Removed");
   }
 
-  // Poor man's websocket
-  // TODO: get this to JSON and send to express via websocket.
+  /** We have switched everything to using Netty/WebSocket. This is only for debugging */
+  @Deprecated
   private void sendMessage(String message) {
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet get = new HttpGet("http://127.0.0.1:26337/ping/" + message);

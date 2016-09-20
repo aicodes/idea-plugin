@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * @author xuy.
  *         Copyright (c) Ai.codes
- * Payload from editor to dashboard. Immutable value class
+ * Payload from editor to dashboard. Immutable value class.
  */
 class IntentionPayload {
 	String methodName = null;
