@@ -9,13 +9,15 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.patterns.PlatformPatterns;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtil;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author xuy.
@@ -39,16 +41,17 @@ public class SnippetCompletion extends CompletionContributor {
 						}
 						String intention = comment.getText().substring(3).trim();
 						// Issue query to API.
-						String snippet = ApiClient.getInstance().getSnippet(intention);
-						resultSet.addElement(LookupElementBuilder.create(snippet));
+						List<String> candidates = new ArrayList<>();
+						ApiClient.getInstance().getSnippets(intention, candidates);
+						for (String candidate : candidates) {
+							resultSet.addElement(
+									LookupElementBuilder.create(candidate).withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
+							.withInsertHandler(SnippetInsertHandler.INSTANCE));
+
+						}
 					}
 				}
 		);
-
-	}
-
-	public void testMethod() {
-		/// This is an intention.
-
 	}
 }
+

@@ -16,13 +16,16 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -67,13 +70,32 @@ public class ApiClient {
     gateway = new ApiRequestGateway();
   }
 
-  public String getSnippet(@NotNull String intention) {
-    if (intention.equals("string to int")) {
-      return "int foo = Integer.parseInt(\"1234\");";
+  public boolean getSnippets(@NotNull String intention, List<String> candidates) {
+    CloseableHttpClient httpClient = HttpClients.createDefault();
+    HttpGet get = new HttpGet(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention));
+    CloseableHttpResponse response = null;
+    try {
+      response = httpClient.execute(get);
+      int statusCode = response.getStatusLine().getStatusCode();
+      if (statusCode == HttpStatus.SC_OK) {
+        ApiResponse jsonResponse = parseJson(response);
+        for (String snippet : jsonResponse.getSnippets()) {
+          candidates.add(snippet);
+        }
+        return true;
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally { // super ugly because we use an older version of HTTP Clients
+      if (response != null) {
+        try {
+          response.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
-    else {
-      return "snippet not implemented yet";
-    }
+    return false;
   }
 
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
