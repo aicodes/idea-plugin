@@ -4,14 +4,20 @@ buildscript {
   }
 }
 
+
 plugins {
   id "org.jetbrains.intellij" version "0.1.10"
 }
 
-task run {
-  doLast {
-   println(SourceSet.MAIN_SOURCE_SET_NAME)
-   println (mainSourceSet(project).resources.srcDirs)
+configurations {
+    ideaPlugins
 }
+
+apply plugin: 'java'
+
+dependencies { 
+  ideaPlugins files("${projectDir}/lib/lib/netty-all-4.1.5.Final.jar")
 }
+
+project.dependencies.add(JavaPlugin.RUNTIME_CONFIGURATION_NAME, files("${projectDir}/lib/lib/netty-all-4.1.5.Final.jar"))
 
