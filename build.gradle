@@ -7,3 +7,11 @@ buildscript {
 plugins {
   id "org.jetbrains.intellij" version "0.1.10"
 }
+
+task run {
+  doLast {
+   println(SourceSet.MAIN_SOURCE_SET_NAME)
+   println (mainSourceSet(project).resources.srcDirs)
+}
+}
+
