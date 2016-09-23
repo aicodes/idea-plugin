@@ -1,5 +1,6 @@
 package codes.ai.intention;
 
+import codes.ai.data.Snippet;
 import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
@@ -19,39 +20,39 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author xuy.
- *         Copyright (c) Ai.codes
- */
+/** @author xuy. Copyright (c) Ai.codes */
 public class SnippetCompletion extends CompletionContributor {
-	public SnippetCompletion() {
-		extend(CompletionType.BASIC,
-				/* After comment, skipping comments in between */
-				PlatformPatterns.psiElement().afterLeafSkipping(
-						PlatformPatterns.psiElement(PsiWhiteSpace.class),
-						PlatformPatterns.psiComment()).withLanguage(JavaLanguage.INSTANCE),
-				new CompletionProvider<CompletionParameters>() {
-					public void addCompletions(@NotNull CompletionParameters parameters,
-					                           ProcessingContext context,
-					                           @NotNull CompletionResultSet resultSet) {
-						// Get the intention line, which is a comment starting with three slashes.
-						PsiElement comment = PsiTreeUtil.skipSiblingsBackward(parameters.getOriginalPosition(), PsiWhiteSpace.class);
-						if (comment == null || !comment.getText().startsWith("///")) {
-							return;
-						}
-						String intention = comment.getText().substring(3).trim();
-						// Issue query to API.
-						List<String> candidates = new ArrayList<>();
-						ApiClient.getInstance().getSnippets(intention, candidates);
-						for (String candidate : candidates) {
-							resultSet.addElement(
-									LookupElementBuilder.create(candidate).withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
-							.withInsertHandler(SnippetInsertHandler.INSTANCE));
-
-						}
-					}
-				}
-		);
-	}
+  public SnippetCompletion() {
+    extend(
+        CompletionType.BASIC,
+        /* After comment, skipping comments in between */
+        PlatformPatterns.psiElement()
+            .afterLeafSkipping(
+                PlatformPatterns.psiElement(PsiWhiteSpace.class), PlatformPatterns.psiComment())
+            .withLanguage(JavaLanguage.INSTANCE),
+        new CompletionProvider<CompletionParameters>() {
+          public void addCompletions(
+              @NotNull CompletionParameters parameters,
+              ProcessingContext context,
+              @NotNull CompletionResultSet resultSet) {
+            // Get the intention line, which is a comment starting with three slashes.
+            PsiElement comment =
+                PsiTreeUtil.skipSiblingsBackward(
+                    parameters.getOriginalPosition(), PsiWhiteSpace.class);
+            if (comment == null || !comment.getText().startsWith("///")) {
+              return;
+            }
+            String intention = comment.getText().substring(3).trim();
+            // Issue query to API.
+            List<Snippet> candidates = new ArrayList<>();
+            ApiClient.getInstance().getSnippets(intention, candidates);
+            for (Snippet candidate : candidates) {
+              resultSet.addElement(
+                  LookupElementBuilder.create(candidate)
+                      .withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
+                      .withInsertHandler(SnippetInsertHandler.INSTANCE));
+            }
+          }
+        });
+  }
 }
-

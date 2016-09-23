@@ -1,6 +1,7 @@
 package codes.ai.localapi;
 
 import codes.ai.Context;
+import codes.ai.data.Snippet;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -70,7 +71,7 @@ public class ApiClient {
     gateway = new ApiRequestGateway();
   }
 
-  public boolean getSnippets(@NotNull String intention, List<String> candidates) {
+  public boolean getSnippets(@NotNull String intention, List<Snippet> candidates) {
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet get = new HttpGet(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention));
     CloseableHttpResponse response = null;
@@ -79,9 +80,7 @@ public class ApiClient {
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode == HttpStatus.SC_OK) {
         ApiResponse jsonResponse = parseJson(response);
-        for (String snippet : jsonResponse.getSnippets()) {
-          candidates.add(snippet);
-        }
+        candidates.addAll(jsonResponse.getSnippets());
         return true;
       }
     } catch (IOException e) {

@@ -15,9 +15,20 @@ configurations {
 
 apply plugin: 'java'
 
-dependencies { 
-  ideaPlugins files("${projectDir}/lib/lib/netty-all-4.1.5.Final.jar")
+dependencies {
+  ideaPlugins files()
 }
+
+
 
 project.dependencies.add(JavaPlugin.RUNTIME_CONFIGURATION_NAME, files("${projectDir}/lib/lib/netty-all-4.1.5.Final.jar"))
 
+project.afterEvaluate {
+    def prepareSandboxTask = project.tasks.findByName("prepareSandbox")
+    prepareSandboxTask.doLast {
+        copy {
+            from files("${projectDir}/lib")
+            into "$prepareSandboxTask.destinationDir/lib"
+        }
+    }
+}

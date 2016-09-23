@@ -1,17 +1,16 @@
 package codes.ai.localapi;
 
-import org.intellij.lang.annotations.Flow;
-import org.jetbrains.annotations.NotNull;
+import codes.ai.data.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /** @author xuy. Copyright (c) Ai.codes */
+
+
+
 // POJO for converting JSON response to Java POJO.
 class ApiResponse {
 
@@ -22,7 +21,7 @@ class ApiResponse {
 
   private ApiResponseHeader header;
   private Map<String, Double> response;
-  private List<String> snippets;
+  private List<Snippet> snippets;
 
   ApiResponse() {
     header = new ApiResponseHeader();
@@ -46,5 +45,5 @@ class ApiResponse {
     return response;
   }
 
-  List<String> getSnippets() { return snippets; }
+  List<Snippet> getSnippets() { return snippets; }
 }
