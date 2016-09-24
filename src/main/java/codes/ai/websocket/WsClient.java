@@ -21,7 +21,6 @@ import java.net.URI;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 /** @author xuy. Copyright (c) Ai.codes */
-// See if this works, and see if we need to switch to a different client provided by IntelliJ.
 public class WsClient {
   static final String URL = "ws://localhost:26337/";
   static WsClient instance = null;
@@ -71,23 +70,13 @@ public class WsClient {
       group.shutdownGracefully();
     }
   }
-
-  private void connectChannel() {
-    try {
-      this.channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    this.channel.writeAndFlush(
-        new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[] {8, 1, 8, 1})));
-  }
-
+  
   public void sendMessage(String message) {
     TextWebSocketFrame frame = new TextWebSocketFrame(message);
     this.channel.writeAndFlush(frame);
   }
 
-  public void shutdown() {
+  private void shutdown() {
     this.group.shutdownGracefully();
   }
 
