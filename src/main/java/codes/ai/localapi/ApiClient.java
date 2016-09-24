@@ -4,7 +4,6 @@ import codes.ai.Context;
 import codes.ai.data.Snippet;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
@@ -12,15 +11,8 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,7 +20,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * ApiClient is responsible for HTTP communications between IntelliJ and local ai.codes server.
@@ -50,10 +41,8 @@ public class ApiClient {
   private static final String API_ENDPOINT = "http://localhost:26337"; // 26337 = CODES
 
   private static final int REQUEST_TIMEOUT_MILLS = 200;
-  private static final String EMPTY_JSON = "{}";
   private static final int HTTP_ERROR = 1000;
   private static final int RADIO_SILENCE = 1001;
-  private static final int JSON_ERROR = 1002;
 
   private static final NotificationGroup NOTIFICATION_GROUP =
       new NotificationGroup("Ai.codes Notification Group", NotificationDisplayType.BALLOON, true);
@@ -72,31 +61,18 @@ public class ApiClient {
   }
 
   public boolean getSnippets(@NotNull String intention, List<Snippet> candidates) {
-    CloseableHttpClient httpClient = HttpClients.createDefault();
-    HttpGet get = new HttpGet(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention));
-    CloseableHttpResponse response = null;
+    String responseJson;
     try {
-      response = httpClient.execute(get);
-      int statusCode = response.getStatusLine().getStatusCode();
-      if (statusCode == HttpStatus.SC_OK) {
-        ApiResponse jsonResponse = parseJson(response);
-        candidates.addAll(jsonResponse.getSnippets());
-        return true;
-      }
+      responseJson = Request.Get(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention, "UTF-8"))
+          .execute().returnContent().asString();
     } catch (IOException e) {
-      e.printStackTrace();
-    } finally { // super ugly because we use an older version of HTTP Clients
-      if (response != null) {
-        try {
-          response.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
+      return false;
     }
-    return false;
+    ApiResponse apiResponse = gson.fromJson(responseJson, ApiResponse.class);
+    candidates.addAll(apiResponse.getSnippets());
+    return true;
   }
-
+  
   public double getMethodWeight(@NotNull PsiMethod method, @NotNull Context context) {
     CompletionGroup completionGroup = CompletionGroup.from(method, context);
     /// Skip empty completion groups.
@@ -171,24 +147,14 @@ public class ApiClient {
   }
 
   private int pokeLocalAiServer(String url, Context context, Map<String, Double> results) {
-    CloseableHttpClient httpClient = HttpClients.createDefault();
-    HttpGet get = new HttpGet(url);
-    get.setConfig(
-        RequestConfig.custom()
-            .setConnectTimeout(REQUEST_TIMEOUT_MILLS)
-            .setConnectionRequestTimeout(REQUEST_TIMEOUT_MILLS)
-            .setSocketTimeout(REQUEST_TIMEOUT_MILLS)
-            .build());
-    CloseableHttpResponse response = null;
     try {
-      response = httpClient.execute(get);
-      int statusCode = response.getStatusLine().getStatusCode();
-      if (statusCode == HttpStatus.SC_OK) {
-        ApiResponse json = parseJson(response);
-        results.putAll(json.getResponse());
-        return json.getStatus();
-      }
-      return statusCode;
+      String responseJson = Request.Get(url)
+          .connectTimeout(REQUEST_TIMEOUT_MILLS)
+          .socketTimeout(REQUEST_TIMEOUT_MILLS)
+          .execute().returnContent().asString();
+      ApiResponse response = gson.fromJson(responseJson, ApiResponse.class);
+      results.putAll(response.getResponse());
+      return response.getStatus();
     } catch (HttpHostConnectException e) {
       gateway.setOffline(true); // avoid repeated requests when cannot make HTTP connect.
       Notification notification =
@@ -199,41 +165,6 @@ public class ApiClient {
     } catch (IOException e) {
       e.printStackTrace();
       return HTTP_ERROR;
-    } finally { // super ugly because we use an older version of HTTP Clients
-      if (response != null) {
-        try {
-          response.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
-  }
-
-  private ApiResponse parseJson(CloseableHttpResponse response) {
-    ApiResponse json = new ApiResponse();
-    String jsonString = EMPTY_JSON;
-
-    // Get JSON Object
-    HttpEntity entity = response.getEntity();
-    try {
-      Scanner s = new Scanner(entity.getContent()).useDelimiter("\\A");
-      if (s.hasNextLine()) {
-        jsonString = s.next();
-      }
-
-    } catch (IOException e) {
-      json.setStatus(JSON_ERROR);
-      json.setMessage(e.toString());
-    }
-
-    // Parse JSON
-    try {
-      json = gson.fromJson(jsonString, json.getClass());
-    } catch (JsonSyntaxException e) {
-      json.setStatus(JSON_ERROR);
-      json.setMessage(e.toString());
-    }
-    return json;
   }
 }
