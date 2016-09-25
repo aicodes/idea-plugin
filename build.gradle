@@ -4,27 +4,13 @@ buildscript {
   }
 }
 
-
 plugins {
   id "org.jetbrains.intellij" version "0.1.10"
 }
 
-configurations {
-    ideaPlugins
-}
-
+apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 
-dependencies {
-  ideaPlugins files()
-}
-
-project.afterEvaluate {
-    def prepareSandboxTask = project.tasks.findByName("prepareSandbox")
-    prepareSandboxTask.doLast {
-        copy {
-            from files("${projectDir}/lib")
-            into "$prepareSandboxTask.destinationDir/lib"
-        }
-    }
+intellij {
+  pluginName 'Ai.Codes Code Auto-completion'
 }
