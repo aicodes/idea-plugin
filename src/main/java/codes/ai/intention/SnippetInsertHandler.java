@@ -69,6 +69,7 @@ class SnippetInsertHandler implements InsertHandler<LookupElement> {
                     elementFactory.createImportStatement(importClass);
                 importList.add(importStatement);
               });
+      // TODO: send id back to server.
     }
   }
 }

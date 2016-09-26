@@ -11,7 +11,7 @@ import java.util.Map;
 
 
 
-// POJO for converting JSON response to Java POJO.
+// POJO for converting JSON object to a Java POJO.
 class ApiResponse {
 
   private class ApiResponseHeader {
@@ -20,29 +20,21 @@ class ApiResponse {
   }
 
   private ApiResponseHeader header;
-  private Map<String, Double> response;
+  private Map<String, Double> weights;
   private List<Snippet> snippets;
 
   ApiResponse() {
     header = new ApiResponseHeader();
-    response = new HashMap<>();
+    weights = new HashMap<>();
     snippets = new ArrayList<>();
-  }
-
-  void setStatus(int status) {
-    this.header.status = status;
-  }
-
-  void setMessage(String message) {
-    this.header.message = message;
   }
 
   int getStatus() {
     return header.status;
   }
 
-  Map<String, Double> getResponse() {
-    return response;
+  Map<String, Double> getWeights() {
+    return weights;
   }
 
   List<Snippet> getSnippets() { return snippets; }

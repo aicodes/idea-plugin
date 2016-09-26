@@ -48,10 +48,12 @@ public class SnippetCompletion extends CompletionContributor {
             ApiClient.getInstance().getSnippets(intention, candidates);
             for (Snippet candidate : candidates) {
               resultSet.addElement(
-                  LookupElementBuilder.create(candidate)
+                  LookupElementBuilder.create(candidate, candidate.code)
                       .withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
                       .withInsertHandler(SnippetInsertHandler.INSTANCE));
             }
+            System.out.println("Number of snippets:");
+            System.out.println(candidates.size());
           }
         });
   }

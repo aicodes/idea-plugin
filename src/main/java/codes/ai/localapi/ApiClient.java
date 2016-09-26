@@ -40,7 +40,9 @@ public class ApiClient {
   private static ApiClient INSTANCE = null;
   private static final String API_ENDPOINT = "http://localhost:26337"; // 26337 = CODES
 
-  private static final int REQUEST_TIMEOUT_MILLS = 200;
+  private static final int ASYNC_REQUEST_TIMEOUT_MILLS = 200;
+  private static final int SYNC_REQUEST_TIMEOUT_MILLS = 2000;
+  
   private static final int HTTP_ERROR = 1000;
   private static final int RADIO_SILENCE = 1001;
 
@@ -60,15 +62,19 @@ public class ApiClient {
     gateway = new ApiRequestGateway();
   }
 
+  /// Synchronized request for now.
   public boolean getSnippets(@NotNull String intention, List<Snippet> candidates) {
     String responseJson;
     try {
       responseJson = Request.Get(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention, "UTF-8"))
+          .socketTimeout(SYNC_REQUEST_TIMEOUT_MILLS)
           .execute().returnContent().asString();
     } catch (IOException e) {
+      e.printStackTrace();
       return false;
     }
     ApiResponse apiResponse = gson.fromJson(responseJson, ApiResponse.class);
+    System.out.println("Snippets from response has " + String.valueOf(apiResponse.getSnippets().size()) + " entries" );
     candidates.addAll(apiResponse.getSnippets());
     return true;
   }
@@ -149,11 +155,11 @@ public class ApiClient {
   private int pokeLocalAiServer(String url, Context context, Map<String, Double> results) {
     try {
       String responseJson = Request.Get(url)
-          .connectTimeout(REQUEST_TIMEOUT_MILLS)
-          .socketTimeout(REQUEST_TIMEOUT_MILLS)
+          .connectTimeout(ASYNC_REQUEST_TIMEOUT_MILLS)
+          .socketTimeout(ASYNC_REQUEST_TIMEOUT_MILLS)
           .execute().returnContent().asString();
       ApiResponse response = gson.fromJson(responseJson, ApiResponse.class);
-      results.putAll(response.getResponse());
+      results.putAll(response.getWeights());
       return response.getStatus();
     } catch (HttpHostConnectException e) {
       gateway.setOffline(true); // avoid repeated requests when cannot make HTTP connect.
