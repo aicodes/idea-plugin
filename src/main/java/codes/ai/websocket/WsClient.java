@@ -22,8 +22,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class WsClient {
-  static final String URL = "ws://localhost:26337/";
-  static WsClient instance = null;
+  private static final String URL = "ws://localhost:26337/";
+  private static WsClient instance = null;
 
   private WebSocketHandler handler;
   private Channel channel;
@@ -73,7 +73,11 @@ public class WsClient {
   
   public void sendMessage(String message) {
     TextWebSocketFrame frame = new TextWebSocketFrame(message);
-    this.channel.writeAndFlush(frame);
+    try {
+      this.channel.writeAndFlush(frame);
+    } catch (NullPointerException e) {
+      // TODO: get a notification mechanism in IntentionComponent.
+    }
   }
 
   private void shutdown() {
@@ -85,6 +89,10 @@ public class WsClient {
       instance = new WsClient();
     }
     return instance;
+  }
+  
+  public static void reconnect() {
+    instance = null;
   }
 
   public static void main(String[] args) throws Exception {

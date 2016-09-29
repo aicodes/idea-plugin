@@ -32,9 +32,8 @@ import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
 public class IntentionCaretListener implements CaretListener {
-  private WsClient wsClient = WsClient.getInstance();
   private Gson gson = new Gson();
-
+  
   @Override
   public void caretPositionChanged(CaretEvent caretEvent) {
     Project project = caretEvent.getEditor().getProject();
@@ -110,7 +109,7 @@ public class IntentionCaretListener implements CaretListener {
                   .filter(comment -> comment.getText().startsWith("///"))
                   .map(comment -> comment.getText().substring(3).trim())
                   .collect(Collectors.toList()));
-          wsClient.sendMessage(gson.toJson(payload));
+          WsClient.getInstance().sendMessage(gson.toJson(payload));
         }
       }
     }

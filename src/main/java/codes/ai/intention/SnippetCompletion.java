@@ -3,6 +3,7 @@ package codes.ai.intention;
 import codes.ai.data.Snippet;
 import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionContributor;
+import com.intellij.codeInsight.completion.CompletionContributorEP;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class SnippetCompletion extends CompletionContributor {
+public class SnippetCompletion extends CompletionContributor  {
   public SnippetCompletion() {
     extend(
         CompletionType.BASIC,

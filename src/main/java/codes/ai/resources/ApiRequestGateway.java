@@ -1,4 +1,4 @@
-package codes.ai.localapi;
+package codes.ai.resources;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * identical request has just been issued within a second; 2. When we cannot talk to local server
  * (offline = true).
  */
-class ApiRequestGateway {
-  private boolean offline;
+public class ApiRequestGateway {
+  private boolean offline = false;
   private static final long TTL_MS = 1000L;
   private Map<String, Long> keyTTL = new ConcurrentHashMap<>();
 
-  boolean shouldIssueRequest(String requestId) {
+  public boolean shouldIssueRequest(String requestId) {
     if (offline) return false;
     if (keyTTL.containsKey(requestId)) {
       if (System.currentTimeMillis() < keyTTL.get(requestId)) {
@@ -29,7 +29,7 @@ class ApiRequestGateway {
     return true;
   }
 
-  void setOffline(boolean isOffline) {
+  public void setOffline(boolean isOffline) {
     this.offline = isOffline;
     if (this.offline) {
       keyTTL.clear();
