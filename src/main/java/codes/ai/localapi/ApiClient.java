@@ -123,6 +123,9 @@ public class ApiClient {
     if (context.getContextMethod() == null) {
       return 404; // empty method.
     }
+    if (cg.getClazz() == null) {
+      return 404; // no type (can be primitive)
+    }
     // URL format: http://localhost:26337/similarity/<ice_id>/ClassName/context
     String url =
         Joiner.on('/')

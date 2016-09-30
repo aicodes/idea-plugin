@@ -3,7 +3,6 @@ package codes.ai.intention;
 import codes.ai.data.Snippet;
 import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionContributor;
-import com.intellij.codeInsight.completion.CompletionContributorEP;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -47,13 +46,17 @@ public class SnippetCompletion extends CompletionContributor  {
             // Issue query to API.
             List<Snippet> candidates = new ArrayList<>();
             ApiClient.getInstance().getSnippets(intention, candidates);
+            int count = 0;
             for (Snippet candidate : candidates) {
+              count+=1;
+              if (count > 3) return;  // do not use that many candidates.
+              candidate.rank = count;
               resultSet.addElement(
                   LookupElementBuilder.create(candidate, candidate.code)
                       .withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
                       .withInsertHandler(SnippetInsertHandler.INSTANCE));
             }
-            System.out.println("Number of snippets:");
+            System.out.println("Total number of snippets fetched: ");
             System.out.println(candidates.size());
           }
         });

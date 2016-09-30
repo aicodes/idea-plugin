@@ -3,6 +3,7 @@
  */
 package codes.ai;
 
+import codes.ai.data.Snippet;
 import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionLocation;
 import com.intellij.codeInsight.completion.CompletionWeigher;
@@ -23,6 +24,10 @@ public class MethodWeigher extends CompletionWeigher {
       PsiMethod psiMethod = (PsiMethod) element.getPsiElement();
       double weight = ApiClient.getInstance().getMethodWeight(psiMethod, context) * WEIGHT_MULTIPLIER;
       return weight;
+    }
+    if (element.getObject() instanceof Snippet) {
+      Snippet s = (Snippet) element.getObject();
+      return 10 - s.rank; // first element get weight 9 and so on.
     }
     return DEFAULT_WEIGHT;
   }
