@@ -43,8 +43,7 @@ public class WsClient {
                 null,
                 true /* allow extensions */,
                 new DefaultHttpHeaders()));
-
-    /// Channel handshake.
+    
     try {
       b = new Bootstrap();
       b.group(group)

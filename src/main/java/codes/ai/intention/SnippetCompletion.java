@@ -49,7 +49,7 @@ public class SnippetCompletion extends CompletionContributor  {
             int count = 0;
             for (Snippet candidate : candidates) {
               count+=1;
-              if (count > 3) return;  // do not use that many candidates.
+              if (count > 1) return;  // HACK, only use the first candidate.
               candidate.rank = count;
               resultSet.addElement(
                   LookupElementBuilder.create(candidate, candidate.code)
