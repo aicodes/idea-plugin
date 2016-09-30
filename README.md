@@ -2,9 +2,12 @@ AI.codes IntelliJ plugin
 -------------------------
 
 This plugin works together with AI.codes dashboard, to provide
-better code completion for IntelliJ.
+better code completion for IntelliJ. Dashboard code is available at
 
-Building IntelliJ plugin is notoriously tedious. If you want to editor the plugin and debug it in IntelliJ, you need to do the following.
+https://github.com/aicodes/dashboard
+
+
+Building IntelliJ plugin is notoriously tedious. If you want to make changes to the plugin and debug it in IntelliJ, you need to do the following.
 
 * Clone the IntelliJ community version source code from github. This will be served as the plugin **SDK** (basically it is what plugin in compiled against).
 * Download either IntelliJ community or ultimate editor, as your editor. This is where you edit the code.
@@ -16,4 +19,4 @@ If you just want to build the plugin (e.g in CI), use
 
   ./gradlew buildPlugin
 
-A zip file will be generated under build/distributions/
+A plugin (zip/jar) file will be generated under build/distributions/.
