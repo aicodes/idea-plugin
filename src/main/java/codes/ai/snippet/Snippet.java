@@ -1,9 +1,9 @@
-package codes.ai.data;
+package codes.ai.snippet;
 
 import java.util.List;
 
 public class Snippet {
-  public String id;
+  String id;
   public String code;
   public List<String> imports;
   public List<Variable> variables;
@@ -13,10 +13,4 @@ public class Snippet {
   public String toString() {
     return code;
   }
-}
-
-/** Value object that represents a snippet result returned from local JSON api. */
-class Variable {
-  String name;
-  String type;
 }

@@ -41,14 +41,18 @@
   <depends>com.intellij.modules.java</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <weigher key="completion" implementationClass="codes.ai.MethodWeigher"
-             id="codes.ai.weigher" order="first"/>
-    <completion.contributor language="JAVA" implementationClass="codes.ai.intention.SnippetCompletion"/>
+    <weigher key="completion"
+             implementationClass="codes.ai.ep.AiWeigher"
+             id="codes.ai.ep.AiWeigher"
+             order="first"/>
+    <completion.contributor
+            language="JAVA"
+            implementationClass="codes.ai.ep.AiSnippetContributor"/>
   </extensions>
 
   <application-components>
     <component>
-      <implementation-class>codes.ai.intention.IntentionComponent</implementation-class>
+      <implementation-class>codes.ai.ep.AiPluginComponent</implementation-class>
     </component>
   </application-components>
 

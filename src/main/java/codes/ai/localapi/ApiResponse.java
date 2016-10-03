@@ -1,6 +1,6 @@
 package codes.ai.localapi;
 
-import codes.ai.data.Snippet;
+import codes.ai.snippet.Snippet;
 
 import java.util.ArrayList;
 import java.util.HashMap;

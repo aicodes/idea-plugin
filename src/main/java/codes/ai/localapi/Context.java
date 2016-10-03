@@ -1,4 +1,4 @@
-package codes.ai;
+package codes.ai.localapi;
 
 import com.intellij.codeInsight.completion.CompletionLocation;
 import com.intellij.openapi.project.Project;
@@ -21,6 +21,7 @@ public class Context {
 
   private Context(CompletionLocation location) {
     // Stores project and id from location.
+    // TODO: kill this, get project info somewhere else for ApiClient.
     this.project = location.getProject();
     this.id = location.hashCode();
     PsiMethod m =
@@ -36,7 +37,7 @@ public class Context {
   }
 
   // Avoid constructing new context repetitively if they are originated from the same location.
-  static Context of(@NotNull CompletionLocation location) {
+  public static Context of(@NotNull CompletionLocation location) {
     if (CURRENT_CONTEXT == null || CURRENT_CONTEXT.getId() != location.hashCode()) {
       CURRENT_CONTEXT = new Context(location);
     }

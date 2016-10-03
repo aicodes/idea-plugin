@@ -1,4 +1,4 @@
-package codes.ai.websocket;
+package codes.ai.intention;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -75,7 +75,7 @@ public class WsClient {
     try {
       this.channel.writeAndFlush(frame);
     } catch (NullPointerException e) {
-      // TODO: get a notification mechanism in IntentionComponent.
+      // TODO: get a notification mechanism in AiPluginComponent.
     }
   }
 

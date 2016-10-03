@@ -1,39 +1,31 @@
-package codes.ai.intention;
+package codes.ai.ep;
 
-import codes.ai.ReconnectDashAction;
-import codes.ai.resources.ApiRequestGateway;
-import codes.ai.websocket.WsClient;
-import com.intellij.codeInsight.completion.CompletionContributor;
-import com.intellij.codeInsight.completion.CompletionContributorEP;
+import codes.ai.intention.IntentionCaretListener;
+import codes.ai.localapi.ApiRequestGateway;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.Constraints;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.extensions.ExtensionPoint;
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.extensions.Extensions;
-import com.intellij.openapi.extensions.ExtensionsArea;
-import com.intellij.openapi.extensions.LoadingOrder;
 import org.jetbrains.annotations.NotNull;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class IntentionComponent implements ApplicationComponent {
-  public static final String ID = "AiCodesMenuItem";
-  public static final String GROUP_ID = "ToolsMenu";
+/**
+ * AiPluginComponent is a singleton. It owns resources used by the plugin.
+ */
+public class AiPluginComponent implements ApplicationComponent {
+  private static final String ID = "AiCodesMenuItem";
+  private static final String GROUP_ID = "ToolsMenu";
+  private ApiRequestGateway gateway;
   
   public ApiRequestGateway getGateway() {
     return gateway;
   }
   
-  // IntentionComponent is a singleton. It owns resources used by the plugin.
-  ApiRequestGateway gateway;
-  
-  public static IntentionComponent getInstance() {
-    return ApplicationManager.getApplication().getComponent(IntentionComponent.class);
+  public static AiPluginComponent getInstance() {
+    return ApplicationManager.getApplication().getComponent(AiPluginComponent.class);
   }
-  
   
   @Override
   public void initComponent() {

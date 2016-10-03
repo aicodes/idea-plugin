@@ -1,6 +1,5 @@
 package codes.ai.intention;
 
-import codes.ai.websocket.WsClient;
 import com.google.gson.Gson;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.event.CaretEvent;

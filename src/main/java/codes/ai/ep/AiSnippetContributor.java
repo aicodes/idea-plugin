@@ -1,6 +1,7 @@
-package codes.ai.intention;
+package codes.ai.ep;
 
-import codes.ai.data.Snippet;
+import codes.ai.snippet.Snippet;
+import codes.ai.snippet.SnippetInsertHandler;
 import codes.ai.localapi.ApiClient;
 import codes.ai.ui.AicodesIcons;
 import com.intellij.codeInsight.completion.CompletionContributor;
@@ -23,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class SnippetCompletion extends CompletionContributor  {
-  public SnippetCompletion() {
+public class AiSnippetContributor extends CompletionContributor  {
+  public AiSnippetContributor() {
     extend(
         CompletionType.BASIC,
         /* After comment, skipping comments in between */

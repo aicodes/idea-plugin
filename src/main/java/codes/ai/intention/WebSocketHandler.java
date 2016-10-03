@@ -1,4 +1,4 @@
-package codes.ai.websocket;
+package codes.ai.intention;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

@@ -1,6 +1,5 @@
 package codes.ai.localapi;
 
-import codes.ai.Context;
 import com.google.common.base.Joiner;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;

@@ -1,6 +1,5 @@
-package codes.ai.intention;
+package codes.ai.snippet;
 
-import codes.ai.data.Snippet;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -15,7 +14,6 @@ import com.intellij.psi.PsiImportList;
 import com.intellij.psi.PsiImportStatement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.psi.impl.PsiClassImplUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.ProjectScope;
 import com.intellij.util.DocumentUtil;
@@ -26,8 +24,8 @@ import com.intellij.util.DocumentUtil;
  *
  * <p>A few things this class do: * Correct indent the code snippet; * Trigger auto-import;
  */
-class SnippetInsertHandler implements InsertHandler<LookupElement> {
-  static SnippetInsertHandler INSTANCE = new SnippetInsertHandler();
+public class SnippetInsertHandler implements InsertHandler<LookupElement> {
+  public static SnippetInsertHandler INSTANCE = new SnippetInsertHandler();
 
   @Override
   public void handleInsert(InsertionContext context, LookupElement lookupElement) {

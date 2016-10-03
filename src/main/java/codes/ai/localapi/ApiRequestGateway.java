@@ -1,4 +1,4 @@
-package codes.ai.resources;
+package codes.ai.localapi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

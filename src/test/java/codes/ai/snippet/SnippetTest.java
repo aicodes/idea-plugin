@@ -1,6 +1,5 @@
-package codes.ai.data;
+package codes.ai.snippet;
 
-import codes.ai.data.Snippet;
 import com.google.gson.Gson;
 import org.junit.Test;
 
@@ -20,8 +19,8 @@ public class SnippetTest {
     Snippet snippet = gson.fromJson(json, Snippet.class);
     assertEquals("e17355e3-abb8-4b78-800c-23c4d900f4c9:0", snippet.id);
     assertEquals(1, snippet.imports.size());
-    // TODO(exu): include results field in JSON response.
-//    assertEquals(1, snippet.variables.size());
-//    assertEquals("java.lang.String", snippet.variables.get(0).type);
+    assertEquals(1, snippet.variables.size());
+    assertEquals("myFile", snippet.variables.get(0).name);
+    assertEquals("java.util.File", snippet.variables.get(0).type);
   }
 }

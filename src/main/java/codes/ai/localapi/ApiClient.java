@@ -1,9 +1,7 @@
 package codes.ai.localapi;
 
-import codes.ai.Context;
-import codes.ai.data.Snippet;
-import codes.ai.intention.IntentionComponent;
-import codes.ai.resources.ApiRequestGateway;
+import codes.ai.snippet.Snippet;
+import codes.ai.ep.AiPluginComponent;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.intellij.notification.Notification;
@@ -61,7 +59,7 @@ public class ApiClient {
 
   private ApiClient() {
     gson = new Gson();
-    gateway = IntentionComponent.getInstance().getGateway();
+    gateway = AiPluginComponent.getInstance().getGateway();
   }
 
   /// Synchronized request for now.
