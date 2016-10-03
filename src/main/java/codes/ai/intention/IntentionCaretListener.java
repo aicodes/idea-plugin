@@ -36,11 +36,12 @@ public class IntentionCaretListener implements CaretListener {
   
   @Override
   public void caretPositionChanged(CaretEvent caretEvent) {
-    Project project = caretEvent.getEditor().getProject();
-    /// Skip parsing event if caret stays in the same line.
+    /// Skip parsing caretEvent if caret stays in the same line.
     if (caretEvent.getOldPosition().line == caretEvent.getNewPosition().line) {
       return;
     }
+    
+    Project project = caretEvent.getEditor().getProject();
     if (project != null && project.isInitialized()) {
       PsiDocumentManager manager = PsiDocumentManager.getInstance(project);
       PsiFile file = manager.getPsiFile(caretEvent.getEditor().getDocument());

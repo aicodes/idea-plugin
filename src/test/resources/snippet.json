@@ -1,0 +1,13 @@
+{
+  "code": "byte[] array = Files.readAllBytes(myFile.toPath());\n",
+  "imports": [
+    "java.nio.file.Files"
+  ],
+  "id": "e17355e3-abb8-4b78-800c-23c4d900f4c9:0",
+  "variable": [
+    {
+      "name": "myFile",
+      "type": "java.util.File"
+    }
+  ]
+}

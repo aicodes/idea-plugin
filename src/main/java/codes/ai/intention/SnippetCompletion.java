@@ -2,6 +2,7 @@ package codes.ai.intention;
 
 import codes.ai.data.Snippet;
 import codes.ai.localapi.ApiClient;
+import codes.ai.ui.AicodesIcons;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
@@ -13,6 +14,7 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.ui.RowIcon;
 import com.intellij.util.PlatformIcons;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
@@ -51,9 +53,10 @@ public class SnippetCompletion extends CompletionContributor  {
               count+=1;
               if (count > 1) return;  // HACK, only use the first candidate.
               candidate.rank = count;
+              RowIcon rowIcon = new RowIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON, AicodesIcons.AICODES);
               resultSet.addElement(
                   LookupElementBuilder.create(candidate, candidate.code)
-                      .withIcon(PlatformIcons.JAVA_OUTSIDE_SOURCE_ICON)
+                      .withIcon(rowIcon)
                       .withInsertHandler(SnippetInsertHandler.INSTANCE));
             }
             System.out.println("Total number of snippets fetched: ");
