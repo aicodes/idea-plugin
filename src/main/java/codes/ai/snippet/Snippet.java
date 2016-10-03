@@ -3,7 +3,7 @@ package codes.ai.snippet;
 import java.util.List;
 
 public class Snippet {
-  String id;
+  String result_id;
   public String code;
   public List<String> imports;
   public List<Variable> variables;

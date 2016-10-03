@@ -17,7 +17,7 @@ public class SnippetTest {
     String json = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
     Gson gson = new Gson();
     Snippet snippet = gson.fromJson(json, Snippet.class);
-    assertEquals("e17355e3-abb8-4b78-800c-23c4d900f4c9:0", snippet.id);
+    assertEquals("e17355e3-abb8-4b78-800c-23c4d900f4c9:0", snippet.result_id);
     assertEquals(1, snippet.imports.size());
     assertEquals(1, snippet.variables.size());
     assertEquals("myFile", snippet.variables.get(0).name);

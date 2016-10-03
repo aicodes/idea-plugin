@@ -10,14 +10,14 @@ import java.util.Objects;
  * Payload from editor to dashboard. Immutable value class.
  */
 class IntentionPayload {
-	String methodName = null;
+	String method = null;
 	List<String> intentions = new ArrayList<>();
-	List<String> parameters = new ArrayList<>();
-	List<String> localVariables = new ArrayList<>();
-	List<String> fields = new ArrayList<>();
+	List<Symbol> parameters = new ArrayList<>();
+	List<Symbol> variables = new ArrayList<>();
+	List<Symbol> fields = new ArrayList<>();
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(methodName, intentions, parameters);
+		return Objects.hash(method, intentions, parameters);
 	}
 }
