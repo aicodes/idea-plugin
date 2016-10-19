@@ -17,6 +17,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilBase;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class IntentionExtractor {
   }
   
   /** Extracts intention from editor (if any) */
-  public Intention getIntention(Project project, Editor editor) {
+  @Nullable public Intention getIntention(Project project, Editor editor) {
     PsiFile psiFile = PsiUtilBase.getPsiFileInEditor(editor, project);
     if (psiFile != null && psiFile instanceof PsiJavaFile) {
       final int offset = editor.getCaretModel().getOffset();

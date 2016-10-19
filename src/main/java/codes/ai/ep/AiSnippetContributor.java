@@ -36,6 +36,8 @@ public class AiSnippetContributor extends CompletionContributor  {
         CompletionType.BASIC,
         /* After comment, skipping comments in between.
          *  TODO: relax this condition to cater for implicit intentions.
+         *  Can potentially only match empty lines.
+         *
          */
         PlatformPatterns.psiElement()
             .afterLeafSkipping(
@@ -49,6 +51,8 @@ public class AiSnippetContributor extends CompletionContributor  {
             Editor editor = parameters.getEditor();
             Project project = editor.getProject();
             Intention intention = IntentionExtractor.getInstance().getIntention(project, editor);
+            if (intention == null) return;
+            
             boolean isImplicit = (intention.label == Label.IMPLICIT);
             SnippetInsertHandler snippetInsertHandler = isImplicit ?
                 SnippetInsertHandler.IMPLICIT_INSTANCE : SnippetInsertHandler.EXPLICIT_INSTANCE;

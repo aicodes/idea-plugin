@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <name>AI Predictive Coding</name>
   <id>codes.ai.java.intellij</id>
-  <version>0.4</version>
+  <version>0.4.1</version>
   <vendor email="exu@ai.codes" url="http://www.ai.codes">ai.codes</vendor>
 
   <description><![CDATA[
@@ -11,7 +11,7 @@
         <ul>
             <li> AI can infer the most relevant method you are calling, and rank it first in autocomplete list </li>
             <li> Tell AI by writing a line of intention such as <code>/// convert myString to int </code>, Enter,
-            and invoke BASIC code completion (Cmd + Space), the AI will fill in the code snippet for you.</li>
+            AI will fill in the code snippet for you.</li>
             <li> ... more to come </li>
         </ul>
 
