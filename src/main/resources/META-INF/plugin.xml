@@ -64,6 +64,7 @@
     <lang.smartEnterProcessor language="JAVA"
                               implementationClass="codes.ai.ep.AiEnterProcessorDelegate"/>
 
+    <editorActionHandler action="EditorEnter" implementationClass="codes.ai.ep.AiCodesEnterActionHandler" order="FIRST"/>
   </extensions>
 
   <application-components>

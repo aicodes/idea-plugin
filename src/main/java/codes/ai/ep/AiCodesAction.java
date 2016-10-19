@@ -30,7 +30,7 @@ import java.awt.event.KeyEvent;
  * Copyright (c) Ai.codes
  */
 
-/** An editor action (not assigned to shortcuts yet that does AI based code completion */
+/** An editor action that can be triggered via menu and other means. */
 public class AiCodesAction extends AnAction implements DumbAware {
   private static final String ACTION_ID = "AiCodesAction";
   

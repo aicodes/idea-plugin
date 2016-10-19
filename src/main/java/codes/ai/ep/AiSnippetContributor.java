@@ -39,7 +39,7 @@ public class AiSnippetContributor extends CompletionContributor  {
               @NotNull CompletionParameters parameters,
               ProcessingContext context,
               @NotNull CompletionResultSet resultSet) {
-            // Get the async line, which is a comment starting with three slashes.
+            // Get the intention line, which is a comment starting with three slashes.
             PsiElement comment =
                 PsiTreeUtil.skipSiblingsBackward(
                     parameters.getOriginalPosition(), PsiWhiteSpace.class);
