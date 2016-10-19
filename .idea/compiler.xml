@@ -19,6 +19,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="api-pojo_main" target="1.8" />
+      <module name="api-pojo_test" target="1.8" />
       <module name="java-snippet-parser_main" target="1.8" />
       <module name="java-snippet-parser_test" target="1.8" />
     </bytecodeTargetLevel>
