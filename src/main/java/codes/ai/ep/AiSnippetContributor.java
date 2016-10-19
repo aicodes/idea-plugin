@@ -1,6 +1,9 @@
 package codes.ai.ep;
 
 import codes.ai.java.pojo.ResultSnippet;
+import codes.ai.snippet.Intention;
+import codes.ai.snippet.IntentionExtractor;
+import codes.ai.snippet.Label;
 import codes.ai.snippet.SnippetInsertHandler;
 import codes.ai.localapi.ApiClient;
 import codes.ai.ui.AicodesIcons;
@@ -11,6 +14,8 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.lang.java.JavaLanguage;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -29,7 +34,9 @@ public class AiSnippetContributor extends CompletionContributor  {
   public AiSnippetContributor() {
     extend(
         CompletionType.BASIC,
-        /* After comment, skipping comments in between */
+        /* After comment, skipping comments in between.
+         *  TODO: relax this condition to cater for implicit intentions.
+         */
         PlatformPatterns.psiElement()
             .afterLeafSkipping(
                 PlatformPatterns.psiElement(PsiWhiteSpace.class), PlatformPatterns.psiComment())
@@ -39,17 +46,15 @@ public class AiSnippetContributor extends CompletionContributor  {
               @NotNull CompletionParameters parameters,
               ProcessingContext context,
               @NotNull CompletionResultSet resultSet) {
-            // Get the intention line, which is a comment starting with three slashes.
-            PsiElement comment =
-                PsiTreeUtil.skipSiblingsBackward(
-                    parameters.getOriginalPosition(), PsiWhiteSpace.class);
-            if (comment == null || !comment.getText().startsWith("///")) {
-              return;
-            }
-            String intention = comment.getText().substring(3).trim();
+            Editor editor = parameters.getEditor();
+            Project project = editor.getProject();
+            Intention intention = IntentionExtractor.getInstance().getIntention(project, editor);
+            boolean isImplicit = (intention.label == Label.IMPLICIT);
+            SnippetInsertHandler snippetInsertHandler = isImplicit ?
+                SnippetInsertHandler.IMPLICIT_INSTANCE : SnippetInsertHandler.EXPLICIT_INSTANCE;
             // Issue query to API.
             List<ResultSnippet> candidates = new ArrayList<>();
-            ApiClient.getInstance().getSnippets(intention, candidates);
+            ApiClient.getInstance().getSnippets(intention.content, candidates);
             int count = 0;
             for (ResultSnippet candidate : candidates) {
               count+=1;
@@ -59,7 +64,7 @@ public class AiSnippetContributor extends CompletionContributor  {
               resultSet.addElement(
                   LookupElementBuilder.create(candidate, candidate.code)
                       .withIcon(rowIcon)
-                      .withInsertHandler(SnippetInsertHandler.INSTANCE));
+                      .withInsertHandler(snippetInsertHandler));
             }
             System.out.println("Total number of snippets fetched: ");
             System.out.println(candidates.size());

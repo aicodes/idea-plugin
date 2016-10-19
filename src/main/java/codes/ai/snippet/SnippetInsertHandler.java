@@ -26,13 +26,27 @@ import com.intellij.util.DocumentUtil;
  * <p>A few things this class do: * Correct indent the code snippet; * Trigger auto-import;
  */
 public class SnippetInsertHandler implements InsertHandler<LookupElement> {
-  public static SnippetInsertHandler INSTANCE = new SnippetInsertHandler();
+  private boolean shouldDeletePreviousLine = false;
+  public static SnippetInsertHandler EXPLICIT_INSTANCE = new SnippetInsertHandler(false);
+  public static SnippetInsertHandler IMPLICIT_INSTANCE = new SnippetInsertHandler(true);
 
+  public SnippetInsertHandler(boolean shouldDeletePreviousLine) {
+    this.shouldDeletePreviousLine = shouldDeletePreviousLine;
+  }
+  
   @Override
   public void handleInsert(InsertionContext context, LookupElement lookupElement) {
     Project project = context.getProject();
     Document document = context.getDocument();
     int lineStartOffset = DocumentUtil.getLineStartOffset(context.getStartOffset(), document);
+    if (shouldDeletePreviousLine) {
+      int lineNumber = document.getLineNumber(lineStartOffset);
+      if (lineNumber > 0) {
+        int plineStart = document.getLineStartOffset(lineNumber-1);
+        int plineEnd = document.getLineEndOffset(lineNumber-1);
+        document.deleteString(plineStart, plineEnd);
+      }
+    }
     PsiDocumentManager.getInstance(project).commitDocument(document);
 
     CodeStyleManager.getInstance(project)
