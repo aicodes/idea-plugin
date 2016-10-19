@@ -12,6 +12,7 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.patterns.PlatformPatterns;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -64,5 +65,23 @@ public class AiSnippetContributor extends CompletionContributor  {
             System.out.println(candidates.size());
           }
         });
+        
   }
+  
+  /** Unfortunately invokeAutoPopup won't work here.
+   * The triggering character has already been consumed
+   * by upper stream processing. It is too late to intercept typedChar.
+   * @param position
+   * @param typeChar
+  
+  @Override
+  public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
+    if (typeChar == '\r' || typeChar == '\n') {
+      System.out.println("Enter pressed");
+      if (position.getPrevSibling() instanceof PsiComment) {
+        return true;
+      }
+    }
+    return false;
+  }*/
 }

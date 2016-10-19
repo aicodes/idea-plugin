@@ -1,5 +1,6 @@
-package codes.ai.async;
+package codes.ai.listener;
 
+import codes.ai.async.WebSocketClient;
 import codes.ai.java.pojo.EditorVariable;
 import codes.ai.java.pojo.EditorIntention;
 import codes.ai.java.pojo.VariableKind;

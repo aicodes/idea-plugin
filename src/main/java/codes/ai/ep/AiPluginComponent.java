@@ -1,6 +1,6 @@
 package codes.ai.ep;
 
-import codes.ai.async.ContextualCaretListener;
+import codes.ai.listener.ContextualCaretListener;
 import codes.ai.localapi.ApiRequestGateway;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.Constraints;

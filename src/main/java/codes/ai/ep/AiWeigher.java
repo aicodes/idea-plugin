@@ -25,6 +25,8 @@ public class AiWeigher extends CompletionWeigher {
       Context context = Context.of(location);
       PsiMethod psiMethod = (PsiMethod) element.getPsiElement();
       double weight = ApiClient.getInstance().getMethodWeight(psiMethod, context) * WEIGHT_MULTIPLIER;
+      // TODO: add weight to lookup element. seems tricky because rendering is controlled by IntelliJ
+      // JavaMethodCallElement, and weight itself cannot insert new elements.
       return weight;
     }
     if (element.getObject() instanceof ResultSnippet) {

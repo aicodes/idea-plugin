@@ -48,6 +48,10 @@
     <completion.contributor
             language="JAVA"
             implementationClass="codes.ai.ep.AiSnippetContributor"/>
+    <typedHandler implementation="codes.ai.ep.AiCompletionTypedHandler" id="aiTypedHandler"/>
+    <lang.smartEnterProcessor language="JAVA"
+                              implementationClass="codes.ai.ep.AiEnterProcessorDelegate"/>
+
   </extensions>
 
   <application-components>
@@ -56,4 +60,7 @@
     </component>
   </application-components>
 
+  <actions>
+    <action id="AiCodesAction" class="codes.ai.ep.AiCodesAction" text="AI Codes"/>
+  </actions>
 </idea-plugin>
