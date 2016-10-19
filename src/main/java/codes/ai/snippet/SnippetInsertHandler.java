@@ -1,5 +1,6 @@
 package codes.ai.snippet;
 
+import codes.ai.java.pojo.ResultSnippet;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -40,10 +41,10 @@ public class SnippetInsertHandler implements InsertHandler<LookupElement> {
             new TextRange(lineStartOffset, lineStartOffset + lookupElement.toString().length()));
 
     final PsiFile file = context.getFile();
-    if (file instanceof PsiJavaFile && lookupElement.getObject() instanceof Snippet) {
+    if (file instanceof PsiJavaFile && lookupElement.getObject() instanceof ResultSnippet) {
       final PsiJavaFile javaFile = (PsiJavaFile) file;
-      final Snippet snippet = (Snippet) lookupElement.getObject();
-      if (snippet.imports == null) {
+      final ResultSnippet resultSnippet = (ResultSnippet) lookupElement.getObject();
+      if (resultSnippet.imports == null) {
         return;
       }
       PsiImportList importList = javaFile.getImportList();
@@ -55,7 +56,7 @@ public class SnippetInsertHandler implements InsertHandler<LookupElement> {
       final PsiElementFactory elementFactory = psiFacade.getElementFactory();
       final GlobalSearchScope projectScope = ProjectScope.getAllScope(project);
 
-      snippet
+      resultSnippet
           .imports
           .stream()
           .filter(classToImport -> importList.findSingleClassImportStatement(classToImport) == null)

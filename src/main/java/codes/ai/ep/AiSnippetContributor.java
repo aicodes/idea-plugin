@@ -1,6 +1,6 @@
 package codes.ai.ep;
 
-import codes.ai.snippet.Snippet;
+import codes.ai.java.pojo.ResultSnippet;
 import codes.ai.snippet.SnippetInsertHandler;
 import codes.ai.localapi.ApiClient;
 import codes.ai.ui.AicodesIcons;
@@ -38,7 +38,7 @@ public class AiSnippetContributor extends CompletionContributor  {
               @NotNull CompletionParameters parameters,
               ProcessingContext context,
               @NotNull CompletionResultSet resultSet) {
-            // Get the intention line, which is a comment starting with three slashes.
+            // Get the async line, which is a comment starting with three slashes.
             PsiElement comment =
                 PsiTreeUtil.skipSiblingsBackward(
                     parameters.getOriginalPosition(), PsiWhiteSpace.class);
@@ -47,10 +47,10 @@ public class AiSnippetContributor extends CompletionContributor  {
             }
             String intention = comment.getText().substring(3).trim();
             // Issue query to API.
-            List<Snippet> candidates = new ArrayList<>();
+            List<ResultSnippet> candidates = new ArrayList<>();
             ApiClient.getInstance().getSnippets(intention, candidates);
             int count = 0;
-            for (Snippet candidate : candidates) {
+            for (ResultSnippet candidate : candidates) {
               count+=1;
               if (count > 1) return;  // HACK, only use the first candidate.
               candidate.rank = count;

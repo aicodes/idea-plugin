@@ -1,4 +1,4 @@
-package codes.ai.intention;
+package codes.ai.async;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -21,9 +21,9 @@ import java.net.URI;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class WsClient {
+public class WebSocketClient {
   private static final String URL = "ws://localhost:26337/";
-  private static WsClient instance = null;
+  private static WebSocketClient instance = null;
 
   private WebSocketHandler handler;
   private Channel channel;
@@ -31,7 +31,7 @@ public class WsClient {
   private Bootstrap b;
   private URI uri;
 
-  private WsClient() {
+  private WebSocketClient() {
     this.uri = URI.create(URL);
     this.group = new NioEventLoopGroup();
 
@@ -83,9 +83,9 @@ public class WsClient {
     this.group.shutdownGracefully();
   }
 
-  public static WsClient getInstance() {
+  public static WebSocketClient getInstance() {
     if (instance == null) {
-      instance = new WsClient();
+      instance = new WebSocketClient();
     }
     return instance;
   }
@@ -95,13 +95,13 @@ public class WsClient {
   }
 
   public static void main(String[] args) throws Exception {
-    WsClient wsWsClient = WsClient.getInstance();
+    WebSocketClient wsWebSocketClient = WebSocketClient.getInstance();
     int i = 0;
     while (i < 10) {
-      wsWsClient.sendMessage("Message #1 " + Integer.toString(i));
-      wsWsClient.sendMessage("Message #2 " + Integer.toString(i));
+      wsWebSocketClient.sendMessage("Message #1 " + Integer.toString(i));
+      wsWebSocketClient.sendMessage("Message #2 " + Integer.toString(i));
       i++;
     }
-    wsWsClient.shutdown();
+    wsWebSocketClient.shutdown();
   }
 }

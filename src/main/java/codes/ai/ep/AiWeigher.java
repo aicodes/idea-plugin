@@ -4,7 +4,7 @@
 package codes.ai.ep;
 
 import codes.ai.localapi.Context;
-import codes.ai.snippet.Snippet;
+import codes.ai.java.pojo.ResultSnippet;
 import codes.ai.localapi.ApiClient;
 import com.intellij.codeInsight.completion.CompletionLocation;
 import com.intellij.codeInsight.completion.CompletionWeigher;
@@ -27,9 +27,9 @@ public class AiWeigher extends CompletionWeigher {
       double weight = ApiClient.getInstance().getMethodWeight(psiMethod, context) * WEIGHT_MULTIPLIER;
       return weight;
     }
-    if (element.getObject() instanceof Snippet) {
+    if (element.getObject() instanceof ResultSnippet) {
       /// Weights of snippet ranking.
-      Snippet s = (Snippet) element.getObject();
+      ResultSnippet s = (ResultSnippet) element.getObject();
       return 10 - s.rank; // first element get weight 9 and so on.
     }
     return DEFAULT_WEIGHT;

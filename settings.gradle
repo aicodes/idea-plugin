@@ -1,1 +1,2 @@
 rootProject.name='aicodes-idea-plugin'
+include ":libraries:api-pojo"

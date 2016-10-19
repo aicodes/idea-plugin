@@ -1,6 +1,6 @@
 package codes.ai.localapi;
 
-import codes.ai.snippet.Snippet;
+import codes.ai.java.pojo.ResultSnippet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ class ApiResponse {
 
   private ApiResponseHeader header;
   private Map<String, Double> weights;
-  private List<Snippet> snippets;
+  private List<ResultSnippet> snippets;
 
   ApiResponse() {
     header = new ApiResponseHeader();
@@ -37,5 +37,5 @@ class ApiResponse {
     return weights;
   }
 
-  List<Snippet> getSnippets() { return snippets; }
+  List<ResultSnippet> getSnippets() { return snippets; }
 }

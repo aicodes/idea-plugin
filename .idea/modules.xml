@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/aicodes-idea-plugin.iml" filepath="$PROJECT_DIR$/aicodes-idea-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-snippet-parser.iml" filepath="$PROJECT_DIR$/.idea/modules/java-snippet-parser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-snippet-parser_main.iml" filepath="$PROJECT_DIR$/.idea/modules/java-snippet-parser_main.iml" group="java-snippet-parser" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-snippet-parser_test.iml" filepath="$PROJECT_DIR$/.idea/modules/java-snippet-parser_test.iml" group="java-snippet-parser" />
     </modules>
   </component>
 </project>

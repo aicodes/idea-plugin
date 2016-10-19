@@ -1,5 +1,8 @@
-package codes.ai.intention;
+package codes.ai.async;
 
+import codes.ai.java.pojo.EditorVariable;
+import codes.ai.java.pojo.EditorIntention;
+import codes.ai.java.pojo.VariableKind;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.intellij.openapi.editor.Caret;
@@ -10,7 +13,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiDeclarationStatement;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
@@ -35,7 +37,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /** @author xuy. Copyright (c) Ai.codes */
-public class IntentionCaretListener implements CaretListener {
+
+/** Listens to caret moves. Asynchronously communicate editor context to dashboard
+ * so when auto completion is called we have most of the information ready.
+ */
+public class ContextualCaretListener implements CaretListener {
   private Gson gson = new Gson();
   
   @Override
@@ -56,43 +62,43 @@ public class IntentionCaretListener implements CaretListener {
         PsiClass clazz = PsiTreeUtil.getParentOfType(method, PsiClass.class);
 
         if (method != null && clazz != null) {
-          IntentionPayload payload = new IntentionPayload();
+          EditorIntention payload = new EditorIntention();
           payload.method = method.getName();
 
           Collection<PsiField> fields =
                   PsiTreeUtil.findChildrenOfType(clazz, PsiField.class);
-          addSymbols(Kind.FIELD, fields, payload.fields);
+          addSymbols(VariableKind.FIELD, fields, payload.variables);
           
           Collection<PsiLocalVariable> localVariables =
               PsiTreeUtil.findChildrenOfType(method, PsiLocalVariable.class);
-          addSymbols(Kind.LOCAL_VARIABLE, localVariables, payload.variables);
+          addSymbols(VariableKind.LOCAL, localVariables, payload.variables);
 
           PsiParameterList parameterList = method.getParameterList();
           Collection<PsiParameter> parameters =
               PsiTreeUtil.findChildrenOfType(parameterList, PsiParameter.class);
-          addSymbols(Kind.METHOD_PARAM, parameters, payload.parameters);
+          addSymbols(VariableKind.ARGUMENT, parameters, payload.variables);
           
-          // Edge case - 1: inside a foreach loop.
+          // Collect params declared inside a foreach loop.
           PsiForeachStatement forEachStatement =
               PsiTreeUtil.getParentOfType(element, PsiForeachStatement.class);
           if (forEachStatement != null) {
             PsiParameter forEachVariable = PsiTreeUtil.findChildOfType(forEachStatement, PsiParameter.class);
             if (forEachVariable != null) {
-              addSymbols(Kind.LOCAL_VARIABLE, ImmutableList.of(forEachVariable), payload.parameters);
+              addSymbols(VariableKind.LOCAL, ImmutableList.of(forEachVariable), payload.variables);
             }
           }
   
-          // Edge case - 2: inside a for loop.
+          // Collect variables declared in a for loop.
           PsiForStatement forStatement =
               PsiTreeUtil.getParentOfType(element, PsiForStatement.class);
           if (forStatement != null) {
             PsiLocalVariable forVariable = PsiTreeUtil.findChildOfType(forStatement, PsiLocalVariable.class);
             if (forVariable != null) {
-              addSymbols(Kind.LOCAL_VARIABLE, ImmutableList.of(forVariable), payload.variables);
+              addSymbols(VariableKind.LOCAL, ImmutableList.of(forVariable), payload.variables);
             }
           }
           
-          /// TODO: find loop variable as well.
+          /// Collect async lines from comments.
           Collection<PsiComment> comments =
               PsiTreeUtil.findChildrenOfType(method, PsiComment.class);
           payload.intentions.addAll(
@@ -101,22 +107,22 @@ public class IntentionCaretListener implements CaretListener {
                   .filter(comment -> comment.getText().startsWith("///"))
                   .map(comment -> comment.getText().substring(3).trim())
                   .collect(Collectors.toList()));
-          WsClient.getInstance().sendMessage(gson.toJson(payload));
+          WebSocketClient.getInstance().sendMessage(gson.toJson(payload));
         }
       }
     }
   }
   
   private void addSymbols(
-      Kind symbolKind,
+      VariableKind symbolVariableKind,
       Collection<? extends PsiVariable> variables,
-      List<Symbol> targetList) {
+      List<EditorVariable> targetList) {
     try {
       for (PsiVariable variable : variables) {
         if (variable.getTypeElement() == null) continue;
         String variableType = variable.getTypeElement().getType().getCanonicalText();
         if (StringUtil.isEmpty(variableType)) continue;
-        targetList.add(new Symbol(variable.getName(), symbolKind, variableType));
+        targetList.add(new EditorVariable(variable.getName(), symbolVariableKind, variableType));
       }
     }
     catch (IndexNotReadyException e) {

@@ -1,6 +1,6 @@
 package codes.ai.localapi;
 
-import codes.ai.snippet.Snippet;
+import codes.ai.java.pojo.ResultSnippet;
 import codes.ai.ep.AiPluginComponent;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
@@ -63,7 +63,7 @@ public class ApiClient {
   }
 
   /// Synchronized request for now.
-  public boolean getSnippets(@NotNull String intention, List<Snippet> candidates) {
+  public boolean getSnippets(@NotNull String intention, List<ResultSnippet> candidates) {
     String responseJson;
     try {
       responseJson = Request.Get(API_ENDPOINT + "/snippet/" + URLEncoder.encode(intention, "UTF-8"))

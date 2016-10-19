@@ -1,0 +1,3 @@
+[submodule "libraries/api-pojo"]
+	path = libraries/api-pojo
+	url = https://github.com/aicodes/api-pojo.git

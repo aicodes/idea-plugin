@@ -14,3 +14,7 @@ apply plugin: 'java'
 intellij {
   pluginName 'Ai.Codes Code Auto-completion'
 }
+
+dependencies {
+  compile ":libraries:api-pojo"
+}

@@ -1,4 +1,4 @@
-package codes.ai.intention;
+package codes.ai.async;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -14,16 +14,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** @author xuy. Copyright (c) Ai.codes */
 
 /// Not used for now, as it is for reading messages from server.
 @ChannelHandler.Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
-  private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
-
   private final WebSocketClientHandshaker handshaker;
   private ChannelPromise handshakeFuture;
 
@@ -47,7 +43,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
   @Override
   public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-    System.out.println("WebSocket WsClient disconnected!");
+    System.out.println("WebSocket WebSocketClient disconnected!");
   }
 
   @Override

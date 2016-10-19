@@ -1,6 +1,6 @@
 package codes.ai.ep;
 
-import codes.ai.intention.IntentionCaretListener;
+import codes.ai.async.ContextualCaretListener;
 import codes.ai.localapi.ApiRequestGateway;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.Constraints;
@@ -31,7 +31,7 @@ public class AiPluginComponent implements ApplicationComponent {
   public void initComponent() {
     gateway = new ApiRequestGateway();
     gateway.setOffline(false);
-    IntentionCaretListener listener = new IntentionCaretListener();
+    ContextualCaretListener listener = new ContextualCaretListener();
       
     /// Register Caret listener.
     EditorFactory.getInstance()

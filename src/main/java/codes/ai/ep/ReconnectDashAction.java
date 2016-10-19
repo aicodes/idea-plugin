@@ -1,7 +1,7 @@
 package codes.ai.ep;
 
 import codes.ai.localapi.ApiRequestGateway;
-import codes.ai.intention.WsClient;
+import codes.ai.async.WebSocketClient;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.util.PlatformIcons;
@@ -22,6 +22,6 @@ class ReconnectDashAction extends AnAction {
   @Override
   public void actionPerformed(AnActionEvent anActionEvent) {
     gateway.setOffline(false);
-    WsClient.reconnect();
+    WebSocketClient.reconnect();
   }
 }
