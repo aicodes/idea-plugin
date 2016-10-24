@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <name>AI Predictive Coding</name>
   <id>codes.ai.java.intellij</id>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <vendor email="exu@ai.codes" url="http://www.ai.codes">ai.codes</vendor>
 
   <description><![CDATA[
@@ -16,14 +16,18 @@
         </ul>
 
         <h4> Notes </h4>
-        <p> You will also need to run a dashboard
-        ( https://github.com/aicodes/dashboard/releases/download/0.4.0/AIcodes-0.4.0.dmg ) to use the plugin. Without
-        the dashboard (in fact a local proxy) this plugin will not work.</p>
-         <p> This feature is still in early alpha, and it can break, burn, or make your eyes itchy. For questions and comments,
-         email me.</p>
+        <p> You will also need to the AI.codes <a href="https://github.com/aicodes/dashboard/releases/latest">dashboard</a> (in fact a local proxy) for this plugin to be functional.
+        The local proxy ensures good user experience by talking to server asynchronously, as retrieving candidates
+        from server usually takes more than 100ms, causing visible delay in UI.
+        </p>
+        <p> This feature is still in early alpha, and it can break, burn, or make your eyes itchy. Help me improve this plugin by <a href="https://github.com/aicodes/idea-plugin/issues">reporting issues</a></p>
     ]]></description>
 
   <change-notes><![CDATA[
+        <p> 0.4.2</p>
+       <ul>
+        <li> fixed a few bugs in completion </li>
+       </ul>
       <p> 0.4 </p>
        <ul>
         <li> recognize variable names in context </li>
@@ -60,7 +64,9 @@
     <completion.contributor
             language="JAVA"
             implementationClass="codes.ai.ep.AiSnippetContributor"/>
+    <!--
     <typedHandler implementation="codes.ai.ep.AiCompletionTypedHandler" id="aiTypedHandler"/>
+    -->
     <lang.smartEnterProcessor language="JAVA"
                               implementationClass="codes.ai.ep.AiEnterProcessorDelegate"/>
 

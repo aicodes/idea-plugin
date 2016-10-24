@@ -18,8 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
-// Experiment 1: try to intercept characters typed: enter is not part of the char set to
-// be intercepted.
+// Not used for now, as it is only triggered by typing `normal` characters to editors.
 public class AiCompletionTypedHandler extends TypedHandlerDelegate {
   @Override
   public Result charTyped(char c, Project project, @NotNull Editor editor, @NotNull PsiFile file) {

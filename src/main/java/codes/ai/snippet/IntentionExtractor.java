@@ -25,6 +25,12 @@ import java.util.Set;
 /** Gets intention lines from editor */
 public class IntentionExtractor {
   private static IntentionExtractor INSTANCE = null;
+  private static final String INTENTION_PREFIX = "///";
+  private static final int INTENTION_PREFIX_LENGTH = 3;
+  
+  public static IntentionExtractor getINSTANCE() {
+    return INSTANCE;
+  }
   
   protected IntentionExtractor() {}
   
@@ -55,8 +61,8 @@ public class IntentionExtractor {
   private Intention tryGetExplicitIntention(PsiFile psiFile, int offset) {
     PsiElement currentPosition = psiFile.findElementAt(offset);
     PsiElement comment = PsiTreeUtil.skipSiblingsBackward(currentPosition, PsiWhiteSpace.class);
-    if (comment != null && comment.getText().startsWith("///")) {
-      return new Intention(comment.getText().substring(3).trim(), Label.EXPLICIT);
+    if (comment != null && comment.getText().startsWith(INTENTION_PREFIX)) {
+      return new Intention(comment.getText().substring(INTENTION_PREFIX_LENGTH).trim(), Label.EXPLICIT);
     }
     return null;
   }
@@ -75,6 +81,7 @@ public class IntentionExtractor {
           document.getLineStartOffset(lineNumber),
           document.getLineEndOffset(lineNumber));
       String text = document.getText(previousLineRange).trim();
+      if (text.isEmpty()) return null;
       
       // A poor man's classifier for prototyping, so ad hoc features.
       Set<Character> chars = new HashSet<>(Chars.asList(text.toCharArray()));
