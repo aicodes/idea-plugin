@@ -1,13 +1,14 @@
 package codes.ai.process;
 
 import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,9 +16,17 @@ import java.util.List;
  *         Copyright (c) Ai.codes
  */
 public class LocalServerProcess {
+  Logger logger = LoggerFactory.getLogger(LocalServerProcess.class);
+  
   private static List<String> nodePaths = ImmutableList.of(
-      "/usr/local/bin/node", "/opt/local/bin/node", "/usr/bin/node", "C:\\Program Files\\Nodejs", "C:\\Program Files (x86)\\Nodejs");
-  private static String scriptName = "server.js";
+      "/usr/local/bin/node",
+      "/opt/local/bin/node",
+      "/usr/bin/node",
+      "C:\\Program Files\\Nodejs",
+      "C:\\Program Files (x86)\\Nodejs");
+  
+  private static String SCRIPT_NAME = "server.js";
+  private static String PORT_LINE = "Listening on port "; // there is a trailing space.
   private final String basedir;
   private Process process;
   private Thread outThread;
@@ -32,20 +41,24 @@ public class LocalServerProcess {
       return;
     }
     ProcessBuilder b = new ProcessBuilder();
-    List<String> commands = findNodeCommand();
-    commands.add(scriptName);
-    b.command(commands);
-    try {
-      b.directory(new File(this.basedir));
-      System.out.println("The base directory is " + b.directory().toString());
-      this.process = b.start();
-      outThread = new Thread(new StdOut());
-      outThread.setDaemon(true);
-      outThread.start();
-      System.out.println("process is alive value is " + this.process.isAlive());
-  
-    } catch (IOException e) {
-      e.printStackTrace();
+    String node = findNodeCommand();
+    if (node != null) {
+      b.command(node, SCRIPT_NAME);
+      try {
+        b.directory(new File(this.basedir));
+        logger.info("The base directory is " + b.directory().toString());
+        this.process = b.start();
+        outThread = new Thread(new StdOut());
+        outThread.setDaemon(true);
+        outThread.start();
+        logger.info("process is alive value is " + this.process.isAlive());
+    
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } else {
+      // cannot find node.
+      System.err.println("Cannot seem to find node.");
     }
   }
   
@@ -59,17 +72,16 @@ public class LocalServerProcess {
   }
   
   /**
-   * Find where node is, returns command to execute node
+   * Find where node.js executable is.
+   * @return command string to invoke node
    */
-  private List<String> findNodeCommand() {
-    List<String> results = new ArrayList<>();
+  private String findNodeCommand() {
     for (String nodePath : nodePaths) {
       if (fileExists(nodePath)) {
-        results.add(nodePath);
-        break;
+        return nodePath;
       }
     }
-    return results;
+    return null;
   }
   
   public void join() throws InterruptedException {
@@ -83,34 +95,17 @@ public class LocalServerProcess {
     @Override
     public void run() {
       try {
-        
-        long startTime = System.nanoTime();
-        // start the node.js process with tern.
         Integer port = null;
-        String line = null;
+        String line;
         InputStream is = process.getInputStream();
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         try {
           while ((line = br.readLine()) != null) {
             if (port == null) {
-              if (line.startsWith("Listening on port ")) {
-                port = Integer.parseInt(line.substring("Listening on port ".length(), line.length()));
-                
-                // port is acquired, notify that process is
-                // started.
-//                setPort(port);
-                
-                /*
-                synchronized (lock) {
-                  lock.notifyAll();
-                }
-                */
-//                notifyStartProcess(startTime);
+              if (line.startsWith(PORT_LINE)) {
+                port = Integer.parseInt(line.substring(PORT_LINE.length(), line.length()));
               }
-            } else {
-              // notify data
-//              notifyDataProcess(line);
             }
           }
         } catch (IOException e) {
@@ -120,13 +115,11 @@ public class LocalServerProcess {
         if (process != null) {
           process.waitFor();
         }
-//        notifyStopProcess();
-//        kill();
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
     }
-  };
+  }
   
   /**
    * StdErr of the node.js process.
@@ -134,13 +127,14 @@ public class LocalServerProcess {
   private class StdErr implements Runnable {
     @Override
     public void run() {
-      String line = null;
       InputStream is = process.getErrorStream();
       InputStreamReader isr = new InputStreamReader(is);
       BufferedReader br = new BufferedReader(isr);
       try {
+        String line;
         while ((line = br.readLine()) != null) {
-//          notifyErrorProcess(line);
+          // report error
+          logger.error(line);
         }
       } catch (IOException e) {
         e.printStackTrace();
