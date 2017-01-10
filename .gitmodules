@@ -1,3 +1,6 @@
 [submodule "libraries/api-pojo"]
 	path = libraries/api-pojo
 	url = https://github.com/aicodes/api-pojo.git
+[submodule "src/main/js/local_proxy"]
+	path = src/main/js/local_proxy
+	url = https://github.com/aicodes/local_proxy
