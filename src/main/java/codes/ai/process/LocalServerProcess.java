@@ -25,8 +25,8 @@ public class LocalServerProcess {
       "C:\\Program Files\\Nodejs",
       "C:\\Program Files (x86)\\Nodejs");
   
-  private static String SCRIPT_NAME = "server.js";
-  private static String PORT_LINE = "Listening on port "; // there is a trailing space.
+  private static String SCRIPT_NAME = "dist/app.js";
+  private static String PORT_LINE = "Hello! listening on port "; // there is a trailing space.
   private final String basedir;
   private Process process;
   private Thread outThread;
@@ -52,7 +52,6 @@ public class LocalServerProcess {
         outThread.setDaemon(true);
         outThread.start();
         logger.info("process is alive value is " + this.process.isAlive());
-    
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -105,6 +104,7 @@ public class LocalServerProcess {
             if (port == null) {
               if (line.startsWith(PORT_LINE)) {
                 port = Integer.parseInt(line.substring(PORT_LINE.length(), line.length()));
+                logger.info("Started proxy on port {}", port);
               }
             }
           }
