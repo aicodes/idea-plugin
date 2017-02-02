@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
  *         Copyright (c) Ai.codes
  */
 class OAuthLoginAction extends AnAction {
+  private static final String OAUTH_URL = "http://localhost:26337/oauth";
   private Task.Modal taskModal;
   private CancellableServerReceiver receiver;
   
@@ -62,6 +63,8 @@ class OAuthLoginAction extends AnAction {
         receiver = new CancellableServerReceiver();
         receiver.start();               // non-blocking.
         receiver.waitForStateChange();  // blocking operation.
+        Integer a;
+        a.
       }
   
       @Override
@@ -78,8 +81,7 @@ class OAuthLoginAction extends AnAction {
         receiver.cancel();
       }
     };
-    // TODO(eric): use the URL that James provided.
-    BrowserUtil.browse("https://www.ai.codes");
+    BrowserUtil.browse(OAUTH_URL);
     taskModal.queue();
   }
   
