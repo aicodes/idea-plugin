@@ -15,7 +15,7 @@ class ReconnectDashAction extends AnAction {
   private final ApiRequestGateway gateway;
   
   ReconnectDashAction(ApiRequestGateway gateway) {
-    super("Reconnect to AI.codes Server", "Reconnect to AI AI.codes Server", PlatformIcons.WEB_ICON);
+    super("Reconnect to AI.codes Server", "Reconnect to AI.codes Server", PlatformIcons.WEB_ICON);
     this.gateway = gateway;
   }
   

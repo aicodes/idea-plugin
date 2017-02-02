@@ -15,7 +15,9 @@ import org.jetbrains.annotations.NotNull;
  * AiPluginComponent is a singleton. It owns resources used by the plugin.
  */
 public class AiPluginComponent implements ApplicationComponent {
-  private static final String ID = "AiCodesMenuItem";
+  private static final String RECONNECT_MENU_ID = "AiCodesMenu_reconnect";
+  private static final String OAUTH_MENU_ID = "AiCodesMenu_oauth";
+  
   private static final String GROUP_ID = "ToolsMenu";
   private ApiRequestGateway gateway;
   
@@ -40,11 +42,16 @@ public class AiPluginComponent implements ApplicationComponent {
     
     /// Register action.
     ActionManager am = ActionManager.getInstance();
-    ReconnectDashAction action = new ReconnectDashAction(gateway);
-    am.registerAction(ID, action);
+    ReconnectDashAction reconnectAction = new ReconnectDashAction(gateway);
+    OAuthLoginAction oAuthLoginAction = new OAuthLoginAction();
+    
+    am.registerAction(RECONNECT_MENU_ID, reconnectAction);
+    am.registerAction(OAUTH_MENU_ID, oAuthLoginAction);
     DefaultActionGroup toolsMenu =
         (DefaultActionGroup) am.getAction(GROUP_ID);
-    toolsMenu.add(action, Constraints.LAST);
+    
+    toolsMenu.add(oAuthLoginAction, Constraints.LAST);
+    toolsMenu.add(reconnectAction, Constraints.LAST);
   }
 
   @Override
